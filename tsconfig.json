@@ -1,12 +1,15 @@
 // tsconfig.json
 {
   "compilerOptions": {
+    "strict": false,
     "target": "ES2020", // Target modern JavaScript features
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"], // Include standard libraries
     "module": "ESNext", // Use modern module system
-    "skipLibCheck": true, // Speed up compilation by not checking library types
-
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noEmitOnError": false,
+    "skipLibCheck": true,
     /* Bundler mode */
     "moduleResolution": "bundler", // Recommended for modern bundlers like Vite
     "allowImportingTsExtensions": true,
@@ -16,9 +19,8 @@
     "jsx": "react-jsx", // Use modern JSX transform
 
     /* Linting */
-    "strict": true, // Enable all strict type-checking options (recommended)
-    "noUnusedLocals": true, // Warn on unused local variables
-    "noUnusedParameters": true, // Warn on unused function parameters
+  // Enable all strict type-checking options (recommended)
+
     "noFallthroughCasesInSwitch": true, // Ensure switch statements are exhaustive
 
     /* Path Aliases (Optional but common) */

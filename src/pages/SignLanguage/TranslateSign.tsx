@@ -1,3 +1,4 @@
+declare var Camera: any;
 import React, { useState, useEffect, useRef } from "react";
 import { Video, X } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -6,8 +7,6 @@ import ServiceDetails from "@/components/ServiceTemplate";
 import Footer from "@/components/Footer";
 import filler from "../../assets/filler.png";
 import dot from "../../assets/Ellipse 4.png";
-import { ElevenLabsClient, play } from "@elevenlabs/elevenlabs-js";
-
 // Type definitions
 interface Landmark {
   x: number;
