@@ -6,7 +6,7 @@ import HeroSection from "../../components/HeroSection";
 import filler from "../../assets/filler.png";
 import dot from "../../assets/Ellipse 4.png";
 import restaurant from "../../assets/restaurant.png";
-import hospital from "../../assets/hospital.png";
+import hospital from "../../assets/Hospital.png";
 import hotel from "../../assets/hotel.png";
 import bank from "../../assets/bank.png";
 
