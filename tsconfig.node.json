@@ -1,0 +1,11 @@
+// tsconfig.node.json
+{
+  "compilerOptions": {
+    "composite": true, // Required for project references
+    "skipLibCheck": true,
+    "module": "ESNext", // Use modern modules
+    "moduleResolution": "bundler", // Or "Node" if preferred for config files
+    "allowSyntheticDefaultImports": true // Allows default imports from modules with no default export
+  },
+  "include": ["vite.config.ts"] // Only include the Vite config file
+}

@@ -1,0 +1,32 @@
+// tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ES2020", // Target modern JavaScript features
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"], // Include standard libraries
+    "module": "ESNext", // Use modern module system
+    "skipLibCheck": true, // Speed up compilation by not checking library types
+
+    /* Bundler mode */
+    "moduleResolution": "bundler", // Recommended for modern bundlers like Vite
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true, // Required by Vite/esbuild
+    "noEmit": true, // TypeScript doesn't output JS; Vite handles bundling
+    "jsx": "react-jsx", // Use modern JSX transform
+
+    /* Linting */
+    "strict": true, // Enable all strict type-checking options (recommended)
+    "noUnusedLocals": true, // Warn on unused local variables
+    "noUnusedParameters": true, // Warn on unused function parameters
+    "noFallthroughCasesInSwitch": true, // Ensure switch statements are exhaustive
+
+    /* Path Aliases (Optional but common) */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"] // Example: Allows import '@/components/...'
+    }
+  },
+  "include": ["src", "vite.config.ts"], // Files/folders for TypeScript to check
+  "references": [{ "path": "./tsconfig.node.json" }] // Reference config for Node env (like vite.config)
+}
