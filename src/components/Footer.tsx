@@ -116,11 +116,11 @@ const Footer: React.FC = () => {
 
             {/* Contact Information */}
             <div className="space-y-2 text-sm text-gray-600">
-              <div className="flex items-center justify-end space-x-2 space-x-reverse">
+              <div className="flex items-center justify-end gap-2">
                 <Mail size={16} className="text-blue-600" />
                 <span>info@dalil.com</span>
               </div>
-              <div className="flex items-center justify-end space-x-2 space-x-reverse">
+              <div className="flex items-center justify-end gap-2">
                 <User size={16} className="text-blue-600" />
                 <span>فريق الدليل</span>
               </div>

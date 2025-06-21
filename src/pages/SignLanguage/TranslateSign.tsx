@@ -1,13 +1,13 @@
 declare var Camera: any;
 import React, { useState, useEffect, useRef } from "react";
-import { Video, X } from "lucide-react";
+import { Video, X, Volume2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import ServiceDetails from "@/components/ServiceTemplate";
 import Footer from "@/components/Footer";
 import filler from "../../assets/filler.png";
 import dot from "../../assets/Ellipse 4.png";
-// Type definitions
+
 interface Landmark {
   x: number;
   y: number;
@@ -40,7 +40,6 @@ const DaleelSignLanguage: React.FC = () => {
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
-  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
   // Initialize voices
   useEffect(() => {
@@ -70,16 +69,40 @@ const DaleelSignLanguage: React.FC = () => {
     };
   }, [currentMode]);
 
-  // Play text to speech when prediction changes
-  useEffect(() => {
+  const handleTextToSpeech = () => {
     if (
-      latestPrediction &&
-      latestPrediction !== "..." &&
-      latestPrediction !== "Waiting for hand..."
-    ) {
-      handleTextToSpeech(latestPrediction);
-    }
-  }, [latestPrediction]);
+      !latestPrediction.trim() ||
+      latestPrediction === "..." ||
+      latestPrediction === "Waiting for hand..." ||
+      !selectedVoice
+    )
+      return;
+
+    // Cancel any ongoing speech
+    window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+
+    const utterance = new SpeechSynthesisUtterance(latestPrediction);
+    utterance.voice = selectedVoice;
+    utterance.lang = selectedVoice.lang;
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+
+    utterance.onstart = () => {
+      setIsSpeaking(true);
+    };
+
+    utterance.onend = () => {
+      setIsSpeaking(false);
+    };
+
+    utterance.onerror = (event) => {
+      console.error("SpeechSynthesis error:", event);
+      setIsSpeaking(false);
+    };
+
+    window.speechSynthesis.speak(utterance);
+  };
 
   // Initialize Mediapipe Hands
   useEffect(() => {
@@ -193,42 +216,13 @@ const DaleelSignLanguage: React.FC = () => {
     };
   }, [cameraOpen, currentMode]);
 
-  // Handle text to speech
-  const handleTextToSpeech = (text: string) => {
-    if (!text.trim() || !selectedVoice) return;
-
-    // Cancel any ongoing speech
-    window.speechSynthesis.cancel();
-    setIsSpeaking(false);
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.voice = selectedVoice;
-    utterance.lang = selectedVoice.lang;
-    utterance.rate = 0.9;
-    utterance.pitch = 1;
-
-    utterance.onstart = () => {
-      setIsSpeaking(true);
-    };
-
-    utterance.onend = () => {
-      setIsSpeaking(false);
-    };
-
-    utterance.onerror = (event) => {
-      console.error("SpeechSynthesis error:", event);
-      setIsSpeaking(false);
-    };
-
-    utteranceRef.current = utterance;
-    window.speechSynthesis.speak(utterance);
-  };
-
   // Keyboard controls
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "s" || e.key === "S") {
         setTracking((prev) => !prev);
+      } else if (e.key === "t" || e.key === "T") {
+        handleTextToSpeech();
       } else if (["1", "2", "3", "4"].includes(e.key)) {
         const modes: Record<string, string> = {
           "1": "EN",
@@ -263,7 +257,7 @@ const DaleelSignLanguage: React.FC = () => {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [latestPrediction]);
 
   const handleOpenCamera = () => {
     setCameraOpen(true);
@@ -332,9 +326,22 @@ const DaleelSignLanguage: React.FC = () => {
                 <video ref={videoRef} className="-scale-x-100" playsInline />
               </div>
               <div className="mt-4 w-full max-w-md mx-auto p-4 border border-gray-200 rounded-lg bg-gray-50 text-center">
-                <span className="block text-blue-600 font-bold mb-2">
-                  النص المترجم من لغة الإشارة:
-                </span>
+                <div className="flex justify-between items-center mb-2">
+                  {latestPrediction &&
+                    latestPrediction !== "..." &&
+                    latestPrediction !== "Waiting for hand..." && (
+                      <button
+                        onClick={handleTextToSpeech}
+                        className="p-2 rounded-full hover:bg-gray-200"
+                        disabled={isSpeaking}
+                      >
+                        <Volume2 size={20} className="text-blue-600" />
+                      </button>
+                    )}
+                  <span className="ml-auto text-blue-600 font-bold">
+                    :النص المترجم من لغة الإشارة
+                  </span>
+                </div>
                 <span className="text-gray-700 text-lg">
                   {latestPrediction}
                 </span>
@@ -348,6 +355,10 @@ const DaleelSignLanguage: React.FC = () => {
                 <p className="text-gray-700 mb-2 text-right">
                   <strong>S: </strong>
                   {tracking ? "إيقاف التعرف" : "بدء التعرف"}
+                </p>
+                <p className="text-gray-700 mb-2 text-right">
+                  <strong>T: </strong>
+                  قراءة النص
                 </p>
                 <p className="text-gray-700 mb-2 text-right">
                   <p>

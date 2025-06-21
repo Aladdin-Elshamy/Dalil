@@ -115,19 +115,13 @@ const Navbar: React.FC = () => {
             >
               <div className="absolute right-1/2 top-1/2 transform translate-x-1/2 -translate-y-1/2 w-full pr-3">
                 <div
-                  className={`w-5 h-1 bg-blue-600 rounded-full transition-transform duration-300 ease-in-out ${
-                    menuOpen ? "w-8 rotate-45 translate-y-1.5" : ""
-                  }`}
+                  className={`w-5 h-1 bg-blue-600 rounded-full transition-transform duration-300 ease-in-out `}
                 />
                 <div
-                  className={`w-8 h-1 bg-blue-600 rounded-full transition-opacity duration-300 ease-in-out mt-1.5 ${
-                    menuOpen ? "opacity-0" : ""
-                  }`}
+                  className={`w-8 h-1 bg-blue-600 rounded-full transition-opacity duration-300 ease-in-out mt-1.5 `}
                 />
                 <div
-                  className={`w-5 h-1 bg-blue-600 rounded-full transition-transform duration-300 ease-in-out mt-1.5 ${
-                    menuOpen ? "w-8 -rotate-45 -translate-y-2" : ""
-                  }`}
+                  className={`w-5 h-1 bg-blue-600 rounded-full transition-transform duration-300 ease-in-out mt-1.5 `}
                 />
               </div>
             </button>
@@ -320,7 +314,7 @@ const Navbar: React.FC = () => {
               className="bg-gradient-to-b from-blue-600 to-blue-800 text-white px-4 py-2 rounded-md shadow hover:opacity-90 transition"
             >
               <p className="text-white font-medium">
-                {isLoggedIn ? "تسجيل الخروج" : "تسجيل الدحول"}
+                {isLoggedIn ? "تسجيل الخروج" : "تسجيل الدخول"}
               </p>
             </button>
             <NavLink to="/Alerts">
@@ -528,7 +522,7 @@ const Navbar: React.FC = () => {
                 className="bg-gradient-to-b from-blue-600 to-blue-800 text-white px-4 py-2 rounded-md shadow hover:opacity-90 transition w-full"
               >
                 <p className="text-white font-medium w-full block">
-                  {isLoggedIn ? "تسجيل الخروج" : "تسجيل الدحول"}
+                  {isLoggedIn ? "تسجيل الخروج" : "تسجيل الدخول"}
                 </p>
               </button>
               <div className="flex items-center gap-4 justify-center mt-2">
