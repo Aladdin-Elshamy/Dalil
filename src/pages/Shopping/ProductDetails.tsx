@@ -1,156 +1,198 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
 import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
-import wh1 from '../../assets/wheelchair1.png';
-import wh2 from '../../assets/wheelchair2.png';
-import wh3 from '../../assets/wheelchair3.png';
-import { Heart, Plus, Minus, ShoppingCart, Share2 } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
 import { useCart } from './CartContext';
+import { useFavourites } from './FavouritesContext';
 
-// Mock product data (should match Shopping.tsx for demo)
-const mockProducts = [
-  {
-    id: '1',
-    name: 'كرسي متحرك كهربائي-45سم',
-    price: 15000,
-    image: wh3,
-    country: 'مصر',
-    stock: 10,
-    description:
-      'كرسي كهربائي متحرك يوفر سهولة التنقل والراحة، مع تصميم عملي وإمكانية التحكم عن بعد. مثالي للاستخدام داخل المنزل وخارجه.',
-  },
-  {
-    id: '2',
-    name: 'كرسي متحرك - شديد التحمل 40 سم',
-    price: 10000,
-    image: wh2,
-    country: 'مصر',
-    stock: 5,
-    description: 'كرسي متحرك يدوي شديد التحمل، مثالي للاستخدام اليومي.',
-  },
-  {
-    id: '3',
-    name: 'كرسي كهربائي - خفيف الوزن يظهر متحرك',
-    price: 25000,
-    image: wh1,
-    country: 'مصر',
-    stock: 3,
-    description: 'كرسي كهربائي خفيف الوزن، سهل الحمل والتنقل.',
-  },
-];
+interface Product {
+  _id: string;
+  title: string;
+  slug: string;
+  userId: string;
+  categoryId: string;
+  images: Array<{ secure_url: string; public_id: string }>;
+  customid: string;
+  price: number;
+  discount: number;
+  priceAfterDiscount: number;
+  stock: number;
+  avgRate: number;
+  rateNum: number;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+  description?: string;
+}
 
-// Simple cart context for demo (replace with global state in production)
-const CartContext = React.createContext({
-  cart: [],
-  addToCart: (product: any, qty: number) => {},
-});
+interface ApiResponse {
+  msg: string;
+  product: Product;
+}
 
 const ProductDetails: React.FC = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const { addToCart } = useCart();
-  const [product, setProduct] = useState(mockProducts[0]);
+  const { id } = useParams<{ id: string }>();
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
-  const [fav, setFav] = useState(false);
+
+  const { addToCart } = useCart();
+  const {
+    addProductToFavourites,
+    removeProductFromFavourites,
+    isProductFavourite,
+  } = useFavourites();
 
   useEffect(() => {
-    const found = mockProducts.find((p) => p.id === id);
-    if (found) {
-      setProduct(found);
-      setQuantity(1);
-    }
+    const fetchProduct = async () => {
+      try {
+        const res = await axios.get<ApiResponse>(
+          `https://dalail-project-daoud.vercel.app/api/v1/product/get/${id}`
+        );
+        if (res.data && res.data.product) {
+          setProduct(res.data.product);
+        } else {
+          console.warn('⚠️ Unexpected response format:', res.data);
+        }
+      } catch (err) {
+        console.error('Error fetching product:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
   }, [id]);
 
-  if (!mockProducts.find((p) => p.id === id)) {
-    return (
-      <div className="flex flex-col min-h-screen bg-white">
-        <Navbar />
-        <div className="container mx-auto px-4 py-16 text-center text-red-600 font-bold text-2xl">المنتج غير موجود</div>
-        <Footer />
-      </div>
-    );
-  }
-
-  const handleAddToCart = () => {
-    addToCart(
-      { id: product.id, name: product.name, price: product.price, image: product.image },
-      quantity
-    );
-    navigate('/Cart');
+  const handleFavouriteToggle = async () => {
+    if (!product) return;
+    if (isProductFavourite(product._id)) {
+      await removeProductFromFavourites(product._id);
+    } else {
+      await addProductToFavourites(product._id);
+    }
   };
 
+  if (loading) return <p className="text-center mt-5">جاري تحميل تفاصيل المنتج...</p>;
+  if (!product) return <p className="text-center mt-5">لم يتم العثور على المنتج.</p>;
+
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <>
       <Navbar />
-      <div className="container mx-auto px-4 py-8 flex flex-col md:flex-row gap-8 items-center">
-        {/* Product Image */}
-        <div className="md:w-1/2 w-full flex justify-center">
-          <div className="relative w-full max-w-md rounded-2xl overflow-hidden shadow-lg bg-white">
-            <img src={product.image} alt={product.name} className="w-full h-96 object-contain rounded-2xl" />
+      <div className="container mt-5">
+        <div className="row align-items-center">
+          <div className="col-md-6">
+            <img
+              src={product.images?.[0]?.secure_url || '/placeholder-image.jpg'}
+              alt={product.title}
+              className="img-fluid rounded"
+              style={{ maxHeight: '450px', objectFit: 'cover' }}
+            />
+            {product.images && product.images.length > 1 && (
+              <div className="mt-3">
+                <div className="row">
+                  {product.images.slice(1, 4).map((image, index) => (
+                    <div key={index} className="col-4">
+                      <img
+                        src={image.secure_url}
+                        alt={`${product.title} ${index + 2}`}
+                        className="img-fluid rounded"
+                        style={{ height: '100px', objectFit: 'cover' }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="col-md-6">
+            <h2>{product.title}</h2>
+            {product.description && <p className="text-muted">{product.description}</p>}
+
+            {product.avgRate > 0 && (
+              <div className="mb-2">
+                <span className="text-warning">
+                  {'★'.repeat(Math.floor(product.avgRate))}
+                  {'☆'.repeat(5 - Math.floor(product.avgRate))}
+                </span>
+                <span className="ms-2 text-muted">({product.rateNum} تقييم)</span>
+              </div>
+            )}
+
+            <div className="price-section mb-3">
+              {product.discount && product.discount > 0 ? (
+                <>
+                  <h4 className="text-muted text-decoration-line-through">
+                    {product.price} ج.م
+                  </h4>
+                  <h3 className="text-success fw-bold">
+                    {product.priceAfterDiscount} ج.م
+                    <span className="badge bg-danger ms-2">خصم {product.discount}%</span>
+                  </h3>
+                </>
+              ) : (
+                <h3 className="fw-bold">{product.price} ج.م</h3>
+              )}
+            </div>
+
+            <div className="mb-3">
+              <span className={`badge ${product.stock > 0 ? 'bg-success' : 'bg-danger'}`}>
+                {product.stock > 0 ? `متوفر (${product.stock} قطعة)` : 'غير متوفر'}
+              </span>
+            </div>
+
+            <div className="d-flex align-items-center mb-3">
+              <label className="me-2">الكمية:</label>
+              <input
+                type="number"
+                min={1}
+                max={product.stock}
+                value={quantity}
+                onChange={(e) => setQuantity(Number(e.target.value))}
+                className="form-control"
+                style={{ width: '80px' }}
+                disabled={product.stock === 0}
+              />
+            </div>
+
             <button
-              className="absolute top-4 left-4 text-red-500 bg-white rounded-full p-2 shadow-md"
-              onClick={() => setFav((f) => !f)}
+              className="btn btn-success me-2"
+              onClick={() => addToCart(product._id, quantity)}
+              disabled={product.stock === 0}
             >
-              <Heart fill={fav ? 'red' : 'none'} color={fav ? 'red' : '#e5e7eb'} size={28} />
+              {product.stock === 0 ? 'غير متوفر' : 'أضف إلى السلة'}
+            </button>
+
+            <button
+              className={`btn btn-outline-${isProductFavourite(product._id) ? 'secondary' : 'danger'}`}
+              onClick={handleFavouriteToggle}
+            >
+              {isProductFavourite(product._id) ? '❤️ تمت الإضافة' : '🤍 أضف للمفضلة'}
             </button>
           </div>
         </div>
-        {/* Product Details */}
-        <div className="md:w-1/2 w-full flex flex-col gap-4 text-right">
-          <h1 className="text-2xl font-bold text-blue-700 mb-2">{product.name}</h1>
-          <div className="text-gray-600 mb-2">بلد المنشأ: {product.country}</div>
-          <div className="text-gray-600 mb-2">الكمية المتبقية: {product.stock} في المخزون</div>
-          <div className="text-gray-700 mb-4">وصف: {product.description}</div>
-          <div className="flex items-center gap-4 mb-4">
-            <span className="font-bold text-lg text-gray-700">ج.م{product.price}</span>
-            <span className="text-gray-600">:الكمية</span>
-            <div className="flex items-center gap-2">
-              <button
-                className="bg-gray-100 rounded-full p-1 border border-gray-300 hover:bg-gray-200"
-                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                aria-label="نقص الكمية"
-              >
-                <Minus size={18} />
-              </button>
-              <span className="mx-2 font-bold text-lg">{quantity}</span>
-              <button
-                className="bg-gray-100 rounded-full p-1 border border-gray-300 hover:bg-gray-200"
-                onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
-                aria-label="زيادة الكمية"
-              >
-                <Plus size={18} />
-              </button>
+
+        <div className="row mt-5">
+          <div className="col-12">
+            <h4>معلومات المنتج</h4>
+            <div className="card">
+              <div className="card-body">
+                <div className="row">
+                  <div className="col-md-6">
+                    <p><strong>كود المنتج:</strong> {product.customid}</p>
+                    <p><strong>الفئة:</strong> {product.categoryId}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <p><strong>تاريخ الإضافة:</strong> {new Date(product.createdAt).toLocaleDateString('ar-EG')}</p>
+                    <p><strong>آخر تحديث:</strong> {new Date(product.updatedAt).toLocaleDateString('ar-EG')}</p>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="flex gap-4 mb-4">
-            <button
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-2 rounded-lg flex items-center gap-2"
-              onClick={handleAddToCart}
-            >
-              <ShoppingCart size={20} />
-              أضف إلى العربة
-            </button>
-            <button className="border border-blue-600 text-blue-600 font-bold px-8 py-2 rounded-lg hover:bg-blue-50">إشترى الآن</button>
-          </div>
-          <div className="flex gap-4 items-center mt-2">
-            <button className="text-gray-500 hover:text-blue-600"><Share2 size={20} /></button>
-            <span className="text-gray-600">مشاركة</span>
           </div>
         </div>
       </div>
-      <Footer />
-      {/* Floating Cart Button */}
-      <a
-        href="/Cart"
-        className="fixed bottom-6 left-6 z-50 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg p-4 flex items-center gap-2 transition-all"
-        style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.12)' }}
-        title="عربة التسوق"
-      >
-        <ShoppingCart size={28} />
-        <span className="font-bold text-lg">عربة التسوق</span>
-      </a>
-    </div>
+    </>
   );
 };
 
