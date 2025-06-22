@@ -46,7 +46,7 @@ const LoginPage: React.FC = () => {
           duration: 1000,
         });
         setTimeout(() => {
-          navigate(`${location.state.from || "/"}`);
+          navigate(`${location?.state?.from || "/"}`);
         }, 1000);
       } else {
         setError(response.data.message || "فشل تسجيل الدخول");
