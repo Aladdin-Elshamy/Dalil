@@ -72,10 +72,23 @@ const SignUp: React.FC = () => {
         "https://dalail-project-daoud.vercel.app/api/v1/auth/signUp",
         requestData
       );
-      await axios.put<ApiResponse>(
-        "https://dalail-project-daoud.vercel.app/api/v1/user/update",
-        requestData
-      );
+      // await axios.put<ApiResponse>(
+      //   "https://dalail-project-daoud.vercel.app/api/v1/user/update",
+      //   {
+      //     firstName: requestData.firstName,
+      //     lastName: requestData.lastName,
+      //     phoneNumber: requestData.phoneNumber,
+      //     address: requestData.address,
+      //     nameOfPersonInCharge: requestData.nameOfPersonInCharge,
+      //     numberPhoneOfPersonInCharge: requestData.numberPhoneOfPersonInCharge,
+      //   },
+      //   {
+      //     headers: {
+      //       Token:
+      //         "dalail__eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YzJlYzYxZDM1MTgwMDMzYzU5Y2VmMiIsImVtYWlsIjoiZGFvdWRtYWhtb3VkMzMxQGdtYWlsLmNvbSIsInJvbGUiOiJBZG1pbiIsInBob25lTnVtYmVyIjoiMDEwOTI3ODM3NzMiLCJhZGRyZXNzIjoiZGFtbmhvdXIiLCJpYXQiOjE3NDA4Mjg5NDZ9.H9NYcvad9wWyJsykbNxjgL4ShUb_5U71yjhe9mfdn78",
+      //     },
+      //   }
+      // );
 
       // Now response.data is properly typed as ApiResponse
       if (!response.data.err) {

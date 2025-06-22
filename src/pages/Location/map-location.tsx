@@ -84,7 +84,7 @@ const MapLocation: React.FC = () => {
     if (!osmCategory) return;
 
     const query = `
-    [out:json]; node [amenity=${osmCategory}] [wheelchair=yes] (around:5000,30.0444,31.2357); out center;
+    [out:json]; node [amenity=${osmCategory}] [wheelchair=yes] (around:5000,${userCoords.lat},${userCoords.lon}); out center;
   `;
 
     try {

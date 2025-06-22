@@ -1,4 +1,5 @@
-declare var Camera: any;
+// DaleelSignLanguage.tsx
+
 import React, { useState, useEffect, useRef } from "react";
 import { Video, X, Volume2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -28,83 +29,51 @@ interface WsMessage {
 }
 
 const DaleelSignLanguage: React.FC = () => {
-  const [tracking, setTracking] = useState<boolean>(false);
-  const [currentMode, setCurrentMode] = useState<string>("EN");
-  const [latestPrediction, setLatestPrediction] = useState<string>("...");
-  const [cameraOpen, setCameraOpen] = useState<boolean>(false);
-  const [handsInitialized, setHandsInitialized] = useState<boolean>(false);
-  const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
+  const [tracking, setTracking] = useState(false);
+  const [currentMode, setCurrentMode] = useState("EN");
+  const [latestPrediction, setLatestPrediction] = useState("...");
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [handsInitialized, setHandsInitialized] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoice, setSelectedVoice] =
     useState<SpeechSynthesisVoice | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
-  // Initialize voices
   useEffect(() => {
     const loadVoices = () => {
       const availableVoices = window.speechSynthesis.getVoices();
       setVoices(availableVoices);
 
-      // Set default voice based on current mode
       const defaultVoice = availableVoices.find((voice) =>
-        currentMode === "AR"
-          ? voice.lang.includes("ar")
-          : voice.lang.includes("en")
+        currentMode === "AR" ||
+        currentMode === "Words" ||
+        currentMode === "Numbers"
+          ? voice.lang.toLowerCase().includes("ar")
+          : voice.lang.toLowerCase().includes("en")
       );
-
-      if (defaultVoice) {
-        setSelectedVoice(defaultVoice);
-      } else if (availableVoices.length > 0) {
-        setSelectedVoice(availableVoices[0]);
-      }
+      setSelectedVoice(defaultVoice || availableVoices[0]);
+      console.log(
+        "🔊 Loaded voice:",
+        (defaultVoice || availableVoices[0])?.name
+      );
     };
 
-    window.speechSynthesis.onvoiceschanged = loadVoices;
-    loadVoices();
+    if (speechSynthesis.getVoices().length === 0) {
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    } else {
+      setTimeout(loadVoices, 100);
+    }
 
     return () => {
       window.speechSynthesis.onvoiceschanged = null;
     };
   }, [currentMode]);
 
-  const handleTextToSpeech = () => {
-    if (
-      !latestPrediction.trim() ||
-      latestPrediction === "..." ||
-      latestPrediction === "Waiting for hand..." ||
-      !selectedVoice
-    )
-      return;
-
-    // Cancel any ongoing speech
-    window.speechSynthesis.cancel();
-    setIsSpeaking(false);
-
-    const utterance = new SpeechSynthesisUtterance(latestPrediction);
-    utterance.voice = selectedVoice;
-    utterance.lang = selectedVoice.lang;
-    utterance.rate = 0.9;
-    utterance.pitch = 1;
-
-    utterance.onstart = () => {
-      setIsSpeaking(true);
-    };
-
-    utterance.onend = () => {
-      setIsSpeaking(false);
-    };
-
-    utterance.onerror = (event) => {
-      console.error("SpeechSynthesis error:", event);
-      setIsSpeaking(false);
-    };
-
-    window.speechSynthesis.speak(utterance);
-  };
-
-  // Initialize Mediapipe Hands
   useEffect(() => {
     if (!cameraOpen) return;
 
@@ -122,6 +91,13 @@ const DaleelSignLanguage: React.FC = () => {
       });
 
       const onResults = (results: Results) => {
+        const canvas = canvasRef.current;
+        const video = videoRef.current;
+        if (!canvas || !video) return;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
         if (
           !results.multiHandLandmarks ||
           results.multiHandLandmarks.length === 0 ||
@@ -131,13 +107,51 @@ const DaleelSignLanguage: React.FC = () => {
         }
 
         const landmarks = results.multiHandLandmarks[0];
-
-        // Prepare data for WebSocket
-        let data_aux: number[] = [];
-        const flippedLandmarks: Landmark[] = landmarks.map((p) => ({
+        const flippedLandmarks = landmarks.map((p) => ({
           x: 1 - p.x,
           y: p.y,
         }));
+
+        const width = canvas.width;
+        const height = canvas.height;
+        const points = flippedLandmarks.map((p) => ({
+          x: p.x * width,
+          y: p.y * height,
+        }));
+
+        const xs = points.map((p) => p.x);
+        const ys = points.map((p) => p.y);
+        const minX = Math.min(...xs);
+        const maxX = Math.max(...xs);
+        const minY = Math.min(...ys);
+        const maxY = Math.max(...ys);
+
+        ctx.strokeStyle = "#FF66FF";
+        ctx.lineWidth = 4;
+        const topMargin = 20;
+        const leftMargin = 15;
+        const rightMargin = 25;
+        const bottomMargin = 10;
+
+        ctx.strokeRect(
+          minX - leftMargin,
+          minY - topMargin,
+          maxX - minX + leftMargin + rightMargin,
+          maxY - minY + topMargin + bottomMargin
+        );
+
+        if (
+          latestPrediction &&
+          latestPrediction !== "..." &&
+          latestPrediction !== "Waiting for hand..."
+        ) {
+          ctx.fillStyle = "yellow";
+          ctx.font = "bold 24px 'Cairo', sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(latestPrediction, (minX + maxX) / 2, minY - 20);
+        }
+
+        let data_aux: number[] = [];
         const minLandmarkX = Math.min(...flippedLandmarks.map((p) => p.x));
         const minLandmarkY = Math.min(...flippedLandmarks.map((p) => p.y));
 
@@ -157,7 +171,6 @@ const DaleelSignLanguage: React.FC = () => {
 
       hands.onResults(onResults);
 
-      // Start camera
       if (videoRef.current) {
         const camera = new Camera(videoRef.current, {
           onFrame: async () => {
@@ -166,7 +179,14 @@ const DaleelSignLanguage: React.FC = () => {
           width: 640,
           height: 480,
         });
+
         camera.start();
+
+        const canvas = canvasRef.current;
+        if (canvas) {
+          canvas.width = 640;
+          canvas.height = 480;
+        }
       }
 
       setHandsInitialized(true);
@@ -175,15 +195,12 @@ const DaleelSignLanguage: React.FC = () => {
     initializeHands();
   }, [cameraOpen, tracking]);
 
-  // WebSocket connection
   useEffect(() => {
     if (!cameraOpen) return;
 
     const connectWebSocket = () => {
       const ws = new WebSocket("ws://localhost:8000/ws");
-
       ws.onopen = () => {
-        console.log("WebSocket connected.");
         const message: WsMessage = { type: "mode", value: currentMode };
         ws.send(JSON.stringify(message));
       };
@@ -195,12 +212,11 @@ const DaleelSignLanguage: React.FC = () => {
             setLatestPrediction(message.prediction);
           }
         } catch (error) {
-          console.error("Error parsing WebSocket message:", error);
+          console.error("WebSocket error:", error);
         }
       };
 
       ws.onclose = () => {
-        console.log("WebSocket disconnected. Reconnecting in 2s...");
         setTimeout(connectWebSocket, 2000);
       };
 
@@ -216,40 +232,64 @@ const DaleelSignLanguage: React.FC = () => {
     };
   }, [cameraOpen, currentMode]);
 
-  // Keyboard controls
+  const handleTextToSpeech = (text: string) => {
+    const voice = selectedVoice || speechSynthesis.getVoices()[0];
+    if (!text.trim() || !voice) {
+      console.warn("No valid text or voice selected.");
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.voice = voice;
+    utterance.lang = voice.lang;
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => {
+      console.error("Speech synthesis error.");
+      setIsSpeaking(false);
+    };
+
+    utteranceRef.current = utterance;
+    window.speechSynthesis.speak(utterance);
+  };
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "s" || e.key === "S") {
+      const key = e.key.toLowerCase();
+
+      if (key === "s") {
         setTracking((prev) => !prev);
-      } else if (e.key === "t" || e.key === "T") {
-        handleTextToSpeech();
-      } else if (["1", "2", "3", "4"].includes(e.key)) {
+      } else if (["1", "2", "3", "4"].includes(key)) {
         const modes: Record<string, string> = {
           "1": "EN",
           "2": "AR",
           "3": "Words",
           "4": "Numbers",
         };
-        const newMode = modes[e.key];
+        const newMode = modes[key];
         setCurrentMode(newMode);
 
-        // Update voice based on new mode
         const availableVoices = window.speechSynthesis.getVoices();
-        const newVoice = availableVoices.find((voice) =>
-          newMode === "AR" || newMode === "Words"
-            ? voice.lang.includes("ar")
-            : voice.lang.includes("en")
-        );
+        const newVoice =
+          availableVoices.find((voice) =>
+            newMode === "AR" || newMode === "Words" || newMode === "Numbers"
+              ? voice.lang.toLowerCase().includes("ar")
+              : voice.lang.toLowerCase().includes("en")
+          ) || availableVoices[0];
 
-        if (newVoice) {
-          setSelectedVoice(newVoice);
-        }
+        setSelectedVoice(newVoice);
+        console.log("🔁 Mode changed to:", newMode, "| Voice:", newVoice?.name);
 
         if (wsRef.current?.readyState === WebSocket.OPEN) {
           const message: WsMessage = { type: "mode", value: newMode };
           wsRef.current.send(JSON.stringify(message));
         }
-      } else if (e.key === "q" || e.key === "Q") {
+      } else if (key === "q") {
         setTracking(false);
         if (wsRef.current) wsRef.current.close();
       }
@@ -257,12 +297,9 @@ const DaleelSignLanguage: React.FC = () => {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [latestPrediction]);
+  }, [latestPrediction, selectedVoice]);
 
-  const handleOpenCamera = () => {
-    setCameraOpen(true);
-  };
-
+  const handleOpenCamera = () => setCameraOpen(true);
   const handleCloseCamera = () => {
     setCameraOpen(false);
     setTracking(false);
@@ -284,12 +321,12 @@ const DaleelSignLanguage: React.FC = () => {
       />
       <ServiceDetails
         serviceName="ترجمة لغة الإشارة إلى نص مكتوب خلال فتح الكاميرا"
-        serviceDescription="خدمة فتح الكاميرا وترجمة لغة الإشارة إلى نص مكتوب هي تقنية مبتكرة تستخدم الذكاء الاصطناعي لتحويل إشارات وحركات اليد إلى محتوى نصي، مما يسهل التواصل بين الأشخاص ذوي الإعاقة السمعية أو النطقية وبين المجتمع. توفر هذه الخدمة أداة فعالة للتواصل والتفاعل الفعّال والمباشر في المجتمع."
+        serviceDescription="خدمة فتح الكاميرا وترجمة لغة الإشارة إلى نص مكتوب هي تقنية مبتكرة..."
         serviceMerits={[
-          "تحويل فوري: يتم تحويل حركات اليد أو لغة الإشارة إلى نص مكتوب بشكل فوري ودقيق، مما يوفر الوقت والجهد.",
-          "سهولة الاستخدام: النظام سهل الاستخدام ويتطلب فقط فتح الكاميرا لبدء الترجمة.",
-          "دعم متنوع: يمكن استخدام الخدمة للتواصل اليومي أو في حالات الطوارئ أو أثناء الاجتماعات.",
-          "تعزز الدمج المجتمعي: تتيح للأشخاص ذوي الإعاقة السمعية أو النطقية التفاعل مع المجتمع والمشاركة في الحياة اليومية دون الحاجة إلى مترجمين إضافيين.",
+          "تحويل فوري...",
+          "سهولة الاستخدام...",
+          "دعم متنوع...",
+          "تعزز الدمج المجتمعي...",
         ]}
       />
       <div className="container mx-auto px-4 pb-8">
@@ -298,8 +335,7 @@ const DaleelSignLanguage: React.FC = () => {
             <>
               <Video size={48} className="text-blue-500 mx-auto" />
               <p className="text-gray-600 text-center text-lg">
-                قم بفتح الكاميرا وسيتم ترجمة حركات يدك أو الشيء الذي تريد التعرف
-                عليه إلى نص يمكنك قراءته هنا......
+                قم بفتح الكاميرا...
               </p>
               <button
                 className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-2 rounded-lg flex items-center gap-2 mt-2"
@@ -322,25 +358,28 @@ const DaleelSignLanguage: React.FC = () => {
                 </button>
               </div>
               <div className="relative">
-                {/* Hidden video element */}
                 <video ref={videoRef} className="-scale-x-100" playsInline />
+                <canvas
+                  ref={canvasRef}
+                  className="absolute top-0 left-0 w-full h-full pointer-events-none"
+                />
               </div>
               <div className="mt-4 w-full max-w-md mx-auto p-4 border border-gray-200 rounded-lg bg-gray-50 text-center">
                 <div className="flex justify-between items-center mb-2">
+                  <span className="block text-blue-600 font-bold">
+                    النص المترجم من لغة الإشارة:
+                  </span>
                   {latestPrediction &&
                     latestPrediction !== "..." &&
                     latestPrediction !== "Waiting for hand..." && (
                       <button
-                        onClick={handleTextToSpeech}
+                        onClick={() => handleTextToSpeech(latestPrediction)}
                         className="p-2 rounded-full hover:bg-gray-200"
                         disabled={isSpeaking}
                       >
                         <Volume2 size={20} className="text-blue-600" />
                       </button>
                     )}
-                  <span className="ml-auto text-blue-600 font-bold">
-                    :النص المترجم من لغة الإشارة
-                  </span>
                 </div>
                 <span className="text-gray-700 text-lg">
                   {latestPrediction}
@@ -357,10 +396,6 @@ const DaleelSignLanguage: React.FC = () => {
                   {tracking ? "إيقاف التعرف" : "بدء التعرف"}
                 </p>
                 <p className="text-gray-700 mb-2 text-right">
-                  <strong>T: </strong>
-                  قراءة النص
-                </p>
-                <p className="text-gray-700 mb-2 text-right">
                   <p>
                     <strong>1:</strong> English
                   </p>
@@ -374,12 +409,11 @@ const DaleelSignLanguage: React.FC = () => {
                     أرقام <strong>:4</strong>
                   </p>
                   <p>
-                    <strong>{selectedVoice?.name || "غير محدد"}: </strong>
-                    الوضع الحالي{" "}
+                    <strong>{selectedVoice?.name || "غير محدد"}: </strong>الصوت
+                    الحالي
                   </p>
                   <p>
-                    <strong>{currentMode}: </strong>
-                    الصوت{" "}
+                    <strong>{currentMode}: </strong>الوضع الحالي
                   </p>
                 </p>
               </div>

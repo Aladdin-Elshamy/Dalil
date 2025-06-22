@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import SubmitButton from "../../components/SubmitButton";
@@ -11,50 +11,25 @@ import textToSpeech from "../../assets/textToSpeech.png";
 import speechToText from "../../assets/speechToText.png";
 import Location from "../../assets/Location.png";
 import Alert from "../../assets/Alerts.png";
-import Yassin from "../../assets/Yacine Zoghby.png";
-import Sherif from "../../assets/sherif Othman.png";
-import Fatma from "../../assets/Fatma Amr.png";
-import Mohamed from "../../assets/Mohammed Karam.png";
-import Rahma from "../../assets/Rahma Khaled.png";
 import home from "../../assets/mainPage.png";
 import vid from "../../assets/prev video.mp4";
 import { SquareCheck } from "lucide-react";
-const champions = [
-  {
-    name: "شريف عثمان",
-    image: Sherif,
-    description:
-      "حاصل على ذهبية بطولة إفريقيا البارالمبية والتي أقيمت بالجزائر شهر أغسطس الماضي، لوزن 59 كجم، برفع ثقل 206 كجم.",
-  },
-  {
-    name: "فاطمة عمر",
-    image: Fatma,
-    description:
-      "أفضل ربّاعة في سيدات اللجنة البارالمبية الدولية عام 2012، وهي صاحبة الرقم العالمي لوزن 56 كجم، إذ رفعت وزن 142 كجم.",
-  },
-  {
-    name: "محمد كرم",
-    image: Mohamed,
-    description:
-      "لاعب كرة قدم في منتخب مصر لذوي الاحتياجات الخاصة،شارك في العديد من البطولات القارية والعالمية وحقق إنجازات كثيرة.",
-  },
-  {
-    name: "رحمة خالد",
-    image: Rahma,
-    description:
-      "سباحة بارالمبية مصرية وحصدت على بطولات عالمية وإقليمية في السباحة. أصبحت أول مذيعة من ذوي الهمم في الوطن العربي، مما جعلها رمزًا للإلهام في الإعلام.",
-  },
-  {
-    name: "ياسين الزغبي",
-    image: Yassin,
-    description:
-      "حاصل 18 عامًا فقد ساقه البشري في الثانية عشر من عمره إثر اصطدم قطار أثناء محاولته عبور السكة، وشارك في تحدي ركوب الدراجات بعد أن تمكن من مواءمة حواجز إرادته ليكون أول مرة في رحلة كوب دراجات انطلقت من القاهرة إلى العين السخنة عام 2015 وحققت صدى واسع. هو الحاضر في مسابقات رياضة كوب الدراجات، ومنذ ذلك الوقت خاض السباقات المختلفة في محافظات مصر المختلفة والبطولة.",
-  },
-];
+
+interface Article {
+  _id: string;
+  title: string;
+  description: string;
+  image: {
+    secure_url: string;
+    public_id: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
 
 const heroSlides = [
   {
-    image: home, // your first image
+    image: home,
     headline: (
       <>
         معاً نبني تجربة شاملة تلبي <br />
@@ -64,7 +39,7 @@ const heroSlides = [
     breadcrumb: "دليل",
   },
   {
-    image: filler, // your second image
+    image: filler,
     headline: (
       <>
         معاً نحو مستقبل أفضل <br />
@@ -74,7 +49,7 @@ const heroSlides = [
     breadcrumb: "دليل",
   },
   {
-    image: video, // your third image
+    image: video,
     headline: (
       <>
         خدمات متكاملة <br />
@@ -87,11 +62,31 @@ const heroSlides = [
 
 const HomePage: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [selectedChampion, setSelectedChampion] = useState(
-    champions[champions.length - 1]
-  );
-
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [openAccordion, setOpenAccordion] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const response = await fetch(
+          "https://dalail-project-daoud.vercel.app/api/v1/article/all?search=&sort=&page="
+        );
+        const data = await response.json();
+        if (data.articles && data.articles.length > 0) {
+          setArticles(data.articles);
+          setSelectedArticle(data.articles[0]);
+        }
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching articles:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchArticles();
+  }, []);
 
   const faqData = [
     {
@@ -545,58 +540,67 @@ const HomePage: React.FC = () => {
         </div>
       </div>
 
-      {/* Champions/Athletes Section */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col md:flex-row gap-8">
-          {/* Left: Other Champions */}
-          <div
-            dir="rtl"
-            className="md:w-1/2 bg-white border border-gray-200 rounded-2xl p-4 flex flex-col items-center"
-          >
-            <h3 className="text-2xl font-bold text-center mb-6">أبطال آخرين</h3>
-            <div className="flex flex-col gap-6 w-full">
-              {champions.map((champion, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-4 cursor-pointer hover:bg-gray-50 p-2 rounded-xl"
-                  onClick={() => setSelectedChampion(champion)}
-                >
-                  <img
-                    src={champion.image}
-                    alt={champion.name}
-                    className="w-44 h-44 object-cover rounded-xl border"
-                  />
-                  <div>
-                    <div className="font-bold text-xl mb-1">
-                      {champion.name}
-                    </div>
-                    <div className="text-gray-600 text-base">
-                      {champion.description}
+      {/* Articles Section */}
+      {articles.length > 0 && !loading ? (
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex flex-col md:flex-row gap-8">
+            {/* Left: Other Articles */}
+            <div
+              dir="rtl"
+              className="md:w-1/2 bg-white border border-gray-200 rounded-2xl p-4 flex flex-col items-center"
+            >
+              <h3 className="text-2xl font-bold text-center mb-6">
+                مقالات أخرى
+              </h3>
+              <div className="flex flex-col gap-6 w-full">
+                {articles.map((article, index) => (
+                  <div
+                    key={article._id}
+                    className="flex items-center gap-4 cursor-pointer hover:bg-gray-50 p-2 rounded-xl"
+                    onClick={() => setSelectedArticle(article)}
+                  >
+                    <img
+                      src={article.image.secure_url}
+                      alt={article.title}
+                      className="w-44 h-44 object-cover rounded-xl border"
+                    />
+                    <div>
+                      <div className="font-bold text-xl mb-1">
+                        {article.title}
+                      </div>
+                      <div className="text-gray-600 text-base">
+                        {article.description.split("\n")[0]}
+                      </div>
                     </div>
                   </div>
+                ))}
+              </div>
+            </div>
+            {/* Right: Main Article */}
+            {selectedArticle && (
+              <div className="md:w-1/2 bg-white p-4 flex flex-col items-center">
+                <span className="bg-sky-100 text-sky-600 px-4 py-1 rounded-lg text-base font-bold mb-2 self-end">
+                  المقالات
+                </span>
+                <img
+                  src={selectedArticle.image.secure_url}
+                  alt={selectedArticle.title}
+                  className="w-full h-100 object-cover rounded-2xl mb-4"
+                />
+                <div className="font-bold text-2xl mb-2 text-center">
+                  {selectedArticle.title}
                 </div>
-              ))}
-            </div>
-          </div>
-          {/* Right: Main Athlete */}
-          <div className="md:w-1/2 bg-white p-4 flex flex-col items-center">
-            <span className="bg-sky-100 text-sky-600 px-4 py-1 rounded-lg text-base font-bold mb-2 self-end">
-              المقالات
-            </span>
-            <img
-              src={selectedChampion.image}
-              alt={selectedChampion.name}
-              className="w-full h-100 object-cover rounded-2xl mb-4"
-            />
-            <div className="font-bold text-2xl mb-2 text-center">
-              {selectedChampion.name}
-            </div>
-            <div className="text-gray-700 text-right text-base leading-relaxed">
-              {selectedChampion.description}
-            </div>
+                <div className="text-gray-700 text-right text-base leading-relaxed whitespace-pre-line">
+                  {selectedArticle.description}
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      </div>
+      ) : (
+        <p>جار التحميل</p>
+      )}
+
       <Footer />
     </div>
   );

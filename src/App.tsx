@@ -28,7 +28,7 @@ import { FavouritesProvider } from "./pages/Shopping/FavouritesContext";
 import Auth from "./components/Auth";
 import { Toaster } from "react-hot-toast";
 
-const token = localStorage.getItem("token");
+const token = localStorage.getItem("authToken");
 function App() {
   return (
     <CartProvider>

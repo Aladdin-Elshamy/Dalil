@@ -33,14 +33,13 @@ const Profile: React.FC = () => {
     const fetchUserProfile = async () => {
       try {
         if (localStorage.getItem("authToken")) {
-          console.log("hi");
+          const token = localStorage.getItem("authToken");
 
           const response = await axios.get(
             "https://dalail-project-daoud.vercel.app/api/v1/user/profile",
             {
               headers: {
-                token:
-                  "dalail__eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YzJlYzYxZDM1MTgwMDMzYzU5Y2VmMiIsImVtYWlsIjoiZGFvdWRtYWhtb3VkMzMxQGdtYWlsLmNvbSIsInJvbGUiOiJBZG1pbiIsInBob25lTnVtYmVyIjoiMDEwOTI3ODM3NzMiLCJhZGRyZXNzIjoiZGFtbmhvdXIiLCJpYXQiOjE3NDA4Mjg5NDZ9.H9NYcvad9wWyJsykbNxjgL4ShUb_5U71yjhe9mfdn78",
+                token,
               },
             }
           );
