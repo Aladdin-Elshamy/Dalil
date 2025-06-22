@@ -65,6 +65,116 @@
 //     </CartContext.Provider>
 //   );
 // };
+// import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+// import axios from 'axios';
+
+// // تعريف واجهة المنتج
+// export interface Product {
+//   _id: string;
+//   title: string;
+//   slug: string;
+//   price: number;
+//   discount: number;
+//   priceAfterDiscount: number;
+//   stock: number;
+//   images: {
+//     secure_url: string;
+//     public_id: string;
+//   }[];
+//   customid: string;
+//   avgRate: number;
+//   rateNum: number;
+// }
+
+// // تعريف عنصر في السلة
+// export interface CartItem {
+//   _id: string; // معرف العنصر في السلة
+//   product: Product;
+//   quantity: number;
+// }
+
+// // نوع السياق
+// interface CartContextType {
+//   cart: CartItem[];
+//   addToCart: (productId: string, quantity: number) => void;
+//   removeFromCart: (id: string) => void;
+//   clearCart: () => void;
+// }
+
+// const CartContext = createContext<CartContextType | undefined>(undefined);
+
+// // هوك مخصص للوصول للسياق
+// export const useCart = (): CartContextType => {
+//   const context = useContext(CartContext);
+//   if (!context) {
+//     throw new Error('useCart must be used within a CartProvider');
+//   }
+//   return context;
+// };
+
+// // مزود السياق
+// export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+//   const [cart, setCart] = useState<CartItem[]>([]);
+
+//   const addToCart = async (productId: string, quantity: number) => {
+//     try {
+//       const res = await axios.get<{ msg: string; product: Product }>(
+//         `https://dalail-project-daoud.vercel.app/api/v1/product/get/${productId}`
+//       );
+
+//       const existingItem = cart.find((item) => item.product._id === productId);
+
+//       if (existingItem) {
+//         // تحديث الكمية إذا المنتج موجود
+//         setCart((prevCart) =>
+//           prevCart.map((item) =>
+//             item.product._id === productId
+//               ? { ...item, quantity: item.quantity + quantity }
+//               : item
+//           )
+//         );
+//       } else {
+//         // إضافة منتج جديد للسلة
+//         const newItem: CartItem = {
+//           _id: new Date().toISOString(), // ID مؤقت
+//           product: res.data.product,
+//           quantity,
+//         };
+//         setCart((prevCart) => [...prevCart, newItem]);
+//       }
+//     } catch (error) {
+//       console.error('Error adding to cart:', error);
+//     }
+//   };
+
+//   const removeFromCart = (id: string) => {
+//     setCart((prevCart) => prevCart.filter((item) => item._id !== id));
+//   };
+
+//   const clearCart = () => {
+//     setCart([]);
+//   };
+
+//   // تحميل السلة من localStorage عند أول تحميل (اختياري)
+//   useEffect(() => {
+//     const storedCart = localStorage.getItem('cart');
+//     if (storedCart) {
+//       setCart(JSON.parse(storedCart));
+//     }
+//   }, []);
+
+//   // حفظ السلة في localStorage عند أي تغيير
+//   useEffect(() => {
+//     localStorage.setItem('cart', JSON.stringify(cart));
+//   }, [cart]);
+
+//   return (
+//     <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart }}>
+//       {children}
+//     </CartContext.Provider>
+//   );
+// };
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
 
@@ -98,6 +208,7 @@ interface CartContextType {
   cart: CartItem[];
   addToCart: (productId: string, quantity: number) => void;
   removeFromCart: (id: string) => void;
+  updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
 }
 
@@ -151,6 +262,16 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setCart((prevCart) => prevCart.filter((item) => item._id !== id));
   };
 
+  const updateQuantity = (id: string, quantity: number) => {
+    setCart((prevCart) =>
+      prevCart.map((item) =>
+        item._id === id 
+          ? { ...item, quantity: Math.max(1, quantity) }
+          : item
+      )
+    );
+  };
+
   const clearCart = () => {
     setCart([]);
   };
@@ -169,9 +290,8 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, [cart]);
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart }}>
+    <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity, clearCart }}>
       {children}
     </CartContext.Provider>
   );
 };
-

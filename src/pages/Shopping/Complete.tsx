@@ -91,25 +91,143 @@
 // };
 
 // export default Complete;
-import React from 'react';
+// import React from 'react';
+// import { useCart } from './CartContext';
+// import { useNavigate } from 'react-router-dom';
+// import axios from 'axios';
+// import Navbar from '../../components/Navbar';
+
+// const Complete: React.FC = () => {
+//   const { cart, clearCart } = useCart();
+//   const navigate = useNavigate();
+
+//   const token = localStorage.getItem('token');
+
+//   const handleCompleteOrder = async () => {
+//     try {
+//       const orderData = {
+//         products: cart.map(item => ({
+//           productId: item.product._id,
+//           quantity: item.quantity,
+//         })),
+//       };
+
+//       const response = await axios.post(
+//         'https://dalail-project-daoud.vercel.app/api/v1/order/create',
+//         orderData,
+//         {
+//           headers: {
+//             token: token || '',
+//             'Content-Type': 'application/json',
+//           },
+//         }
+//       );
+
+//       console.log('Order response:', response.data);
+
+//       clearCart();
+//       navigate('/order-done');
+//     } catch (error) {
+//       console.error('Error completing order:', error);
+//     }
+//   };
+
+//   return (
+//     <>
+//       <Navbar />
+//       <div className="container mt-5 text-center">
+//         <h2 className="mb-4">مراجعة الطلب</h2>
+//         {cart.length === 0 ? (
+//           <p>السلة فارغة، لا يوجد منتجات لإتمام الطلب.</p>
+//         ) : (
+//           <>
+//             <table className="table table-bordered">
+//               <thead className="table-light">
+//                 <tr>
+//                   <th>المنتج</th>
+//                   <th>السعر</th>
+//                   <th>الكمية</th>
+//                   <th>الإجمالي</th>
+//                 </tr>
+//               </thead>
+//               <tbody>
+//                 {cart.map((item, index) => (
+//                   <tr key={index}>
+//                     <td>{item.product.title}</td>
+//                     <td>{item.product.priceAfterDiscount} ج.م</td>
+//                     <td>{item.quantity}</td>
+//                     <td>{item.product.priceAfterDiscount * item.quantity} ج.م</td>
+//                   </tr>
+//                 ))}
+//               </tbody>
+//             </table>
+//             <button className="btn btn-primary mt-3" onClick={handleCompleteOrder}>
+//               إتمام الطلب
+//             </button>
+//           </>
+//         )}
+//       </div>
+//     </>
+//   );
+// };
+
+// export default Complete;
+
+import React, { useState } from "react";
+import Navbar from "../../components/Navbar";
+import Footer from "../../components/Footer";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useCart } from './CartContext';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Navbar from '../../components/Navbar';
 
 const Complete: React.FC = () => {
-  const { cart, clearCart } = useCart();
+  const location = useLocation();
   const navigate = useNavigate();
+  const { cart, clearCart } = useCart();
+  const { subtotal, total } = location.state || { subtotal: 0, total: 0 };
+  
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    governorate: '',
+    address: '',
+    notes: ''
+  });
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const shipping = 100;
+  const finalTotal = total + shipping;
 
   const token = localStorage.getItem('token');
 
-  const handleCompleteOrder = async () => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
     try {
       const orderData = {
         products: cart.map(item => ({
           productId: item.product._id,
           quantity: item.quantity,
         })),
+        shippingAddress: {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          governorate: formData.governorate,
+          address: formData.address,
+          notes: formData.notes
+        }
       };
 
       const response = await axios.post(
@@ -124,50 +242,145 @@ const Complete: React.FC = () => {
       );
 
       console.log('Order response:', response.data);
-
+      
+      // Clear cart and redirect
       clearCart();
-      navigate('/order-done');
+      alert('تم تأكيد الطلب بنجاح!');
+      navigate('/'); // Redirect to home page after order completion
     } catch (error) {
       console.error('Error completing order:', error);
+      alert('حدث خطأ أثناء تأكيد الطلب. يرجى المحاولة مرة أخرى.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen bg-white">
       <Navbar />
-      <div className="container mt-5 text-center">
-        <h2 className="mb-4">مراجعة الطلب</h2>
-        {cart.length === 0 ? (
-          <p>السلة فارغة، لا يوجد منتجات لإتمام الطلب.</p>
-        ) : (
-          <>
-            <table className="table table-bordered">
-              <thead className="table-light">
-                <tr>
-                  <th>المنتج</th>
-                  <th>السعر</th>
-                  <th>الكمية</th>
-                  <th>الإجمالي</th>
-                </tr>
-              </thead>
-              <tbody>
-                {cart.map((item, index) => (
-                  <tr key={index}>
-                    <td>{item.product.title}</td>
-                    <td>{item.product.priceAfterDiscount} ج.م</td>
-                    <td>{item.quantity}</td>
-                    <td>{item.product.priceAfterDiscount * item.quantity} ج.م</td>
-                  </tr>
+      <div className="container mx-auto px-4 py-8 flex-1">
+        <div className="flex items-center gap-2 text-gray-500 text-base mb-4 justify-end">
+          <span className="text-blue-700 font-bold">تأكيد الطلب</span>
+          <span className="mx-2">&lt;</span>
+          <span>عربة التسوق</span>
+          <span className="mx-2">&lt;</span>
+          <span>المنتجات</span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Invoice Summary */}
+          <div className="bg-white rounded-xl shadow p-6 border md:order-1 order-2">
+            <h2 className="text-xl font-bold text-right mb-4 border-b pb-2">الفاتورة</h2>
+            <div className="flex flex-col gap-2 text-right text-gray-700">
+              <div className="flex flex-col gap-4 mb-4">
+                {cart.map((item) => (
+                  <div key={item._id} className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <img 
+                        src={item.product.images[0]?.secure_url || '/placeholder-image.jpg'} 
+                        alt={item.product.title} 
+                        className="w-12 h-12 object-contain rounded-lg border" 
+                      />
+                      <span className="font-bold text-gray-700">{item.product.title}</span>
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <span>{item.product.priceAfterDiscount}ج.م</span>
+                      <span className="text-xs text-gray-400">x{item.quantity}</span>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-            <button className="btn btn-primary mt-3" onClick={handleCompleteOrder}>
-              إتمام الطلب
+              </div>
+              <div className="flex justify-between mb-2">
+                <span>المجموع الفرعي</span>
+                <span>{subtotal.toLocaleString()}ج.م</span>
+              </div>
+              <div className="flex justify-between mb-2">
+                <span>الشحن</span>
+                <span>{shipping}ج.م</span>
+              </div>
+              <div className="flex justify-between font-bold text-lg border-t pt-2 mt-2">
+                <span>الإجمالي</span>
+                <span>{finalTotal.toLocaleString()}ج.م</span>
+              </div>
+            </div>
+            <button 
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className={`w-full ${isSubmitting ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'} text-white font-bold py-2 rounded-lg mt-6`}
+            >
+              {isSubmitting ? 'جاري تأكيد الطلب...' : 'تأكيد الطلب'}
             </button>
-          </>
-        )}
+          </div>
+          
+          {/* Order Form */}
+          <div className="bg-white rounded-xl shadow p-6 border md:order-2 order-1">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <div className="flex gap-4">
+                <input 
+                  type="text" 
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  placeholder="الاسم" 
+                  className="w-full border border-gray-400 rounded-lg px-4 py-3 text-right placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                  required 
+                />
+                <input 
+                  type="email" 
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  placeholder="البريد الالكتروني" 
+                  className="w-full border border-gray-400 rounded-lg px-4 py-3 text-right placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                  required 
+                />
+              </div>
+              <div className="flex gap-4">
+                <input 
+                  type="text" 
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  placeholder="رقم الهاتف" 
+                  className="w-full border border-gray-400 rounded-lg px-4 py-3 text-right placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                  required 
+                />
+                <input 
+                  type="text" 
+                  name="governorate"
+                  value={formData.governorate}
+                  onChange={handleInputChange}
+                  placeholder="المحافظة" 
+                  className="w-full border border-gray-400 rounded-lg px-4 py-3 text-right placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                  required 
+                />
+              </div>
+              <input 
+                type="text" 
+                name="address"
+                value={formData.address}
+                onChange={handleInputChange}
+                placeholder="العنوان (المدينة - الشارع - رقم العقار - رقم الطابق - رقم الشقة)" 
+                className="w-full border border-gray-400 rounded-lg px-4 py-3 text-right placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                required 
+              />
+              <textarea 
+                name="notes"
+                value={formData.notes}
+                onChange={handleInputChange}
+                placeholder="ملاحظات إضافية (اختياري)" 
+                className="w-full p-2 border rounded-md text-right" 
+                rows={3}
+              ></textarea>
+            </form>
+            <div className="mt-6 text-right">
+              <span className="text-green-600 font-bold">ملاحظة:</span>
+              <span className="text-gray-700"> الدفع لدينا عند الإستلام فقط.</span>
+            </div>
+          </div>
+        </div>
       </div>
-    </>
+      <Footer />
+    </div>
   );
 };
 
