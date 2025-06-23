@@ -598,7 +598,7 @@ const HomePage: React.FC = () => {
           </div>
         </div>
       ) : (
-        <p>جار التحميل</p>
+        <p className="text-center">جار التحميل</p>
       )}
 
       <Footer />

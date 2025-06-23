@@ -123,7 +123,7 @@ const LoginPage: React.FC = () => {
         </div>
         <SubmitButton
           type="submit"
-          label="ارسال"
+          label={`${isLoading ? "جار الارسال" : "ارسال"}`}
           className="text-center w-full"
         />
       </form>

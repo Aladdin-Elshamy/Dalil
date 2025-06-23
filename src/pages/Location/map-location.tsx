@@ -21,8 +21,8 @@ const MapLocation: React.FC = () => {
 
   const [results, setResults] = useState<any[]>([]);
   const [mapCenter, setMapCenter] = useState({
-    lat: 30.0444,
-    lon: 31.2357,
+    lat: userCoords?.lat || 0,
+    lon: userCoords?.lon || 0,
     zoom: 6,
   });
 

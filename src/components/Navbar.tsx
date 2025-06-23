@@ -323,12 +323,12 @@ const Navbar: React.FC = () => {
                 className="text-blue-600 hover:text-blue-800 cursor-pointer border border-blue-600 rounded-full p-1"
               />
             </NavLink>
-            <NavLink to="/Profile">
+            {/* <NavLink to="/Profile">
               <User
                 size={28}
                 className="text-blue-600 hover:text-blue-800 cursor-pointer border border-blue-600 rounded-full p-1"
               />
-            </NavLink>
+            </NavLink> */}
           </div>
 
           {/* Mobile/Tablet: Dropdown Menu */}
@@ -530,12 +530,12 @@ const Navbar: React.FC = () => {
                   size={28}
                   className="text-blue-600 hover:text-blue-800 cursor-pointer border border-blue-600 rounded-full p-1"
                 />
-                <NavLink to="/Profile">
+                {/* <NavLink to="/Profile">
                   <User
                     size={28}
                     className="text-blue-600 hover:text-blue-800 cursor-pointer border border-blue-600 rounded-full p-1"
                   />
-                </NavLink>
+                </NavLink> */}
               </div>
             </div>
           )}

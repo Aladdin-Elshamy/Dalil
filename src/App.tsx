@@ -35,29 +35,134 @@ function App() {
       <FavouritesProvider>
         <Router>
           <Routes>
-            <Route path="/Complete" element={<Complete />} />
-            <Route path="/Favourite" element={<Favourite />} />
-            <Route path="/OrderDone" element={<DoneOrder />} />
+            <Route
+              path="/Complete"
+              element={
+                <Auth redirectPath="/login" isAllowed={!!token}>
+                  <Complete />
+                </Auth>
+              }
+            />
+            <Route
+              path="/Favourite"
+              element={
+                <Auth redirectPath="/login" isAllowed={!!token}>
+                  <Favourite />
+                </Auth>
+              }
+            />
+            <Route
+              path="/OrderDone"
+              element={
+                <Auth redirectPath="/login" isAllowed={!!token}>
+                  <DoneOrder />
+                </Auth>
+              }
+            />
             <Route
               path="/STT"
               element={
                 <Auth redirectPath="/login" isAllowed={!!token}>
-                  <SpeechToText />{" "}
+                  <SpeechToText />
                 </Auth>
               }
             />
-            <Route path="/TTS" element={<TextToSpeech />} />
-            <Route path="/TranslateSign" element={<TranslateSign />} />
-            <Route path="/ObjectRecognition" element={<ObjectRecognition />} />
-            <Route path="/Shopping" element={<Shopping />} />
-            <Route path="/Cart" element={<Cart />} />
-            <Route path="/ProductDetails/:id" element={<ProductDetails />} />
-            <Route path="/Alerts" element={<Notification />} />
-            <Route path="/" element={<HomePage />} />
-            <Route path="/Profile" element={<Profile />} />
-            <Route path="/Contact" element={<ContactUs />} />
-            <Route path="/Location" element={<MapLocation />} />
-            <Route path="/SignLanguage" element={<SignLanguage />} />
+            <Route
+              path="/TTS"
+              element={
+                <Auth redirectPath="/login" isAllowed={!!token}>
+                  <TextToSpeech />
+                </Auth>
+              }
+            />
+            <Route
+              path="/TranslateSign"
+              element={
+                <Auth redirectPath="/login" isAllowed={!!token}>
+                  <TranslateSign />
+                </Auth>
+              }
+            />
+            <Route
+              path="/ObjectRecognition"
+              element={
+                <Auth redirectPath="/login" isAllowed={!!token}>
+                  <ObjectRecognition />
+                </Auth>
+              }
+            />
+            <Route
+              path="/Shopping"
+              element={
+                <Auth redirectPath="/login" isAllowed={!!token}>
+                  <Shopping />
+                </Auth>
+              }
+            />
+            <Route
+              path="/Cart"
+              element={
+                <Auth redirectPath="/login" isAllowed={!!token}>
+                  <Cart />
+                </Auth>
+              }
+            />
+            <Route
+              path="/ProductDetails/:id"
+              element={
+                <Auth redirectPath="/login" isAllowed={!!token}>
+                  <ProductDetails />
+                </Auth>
+              }
+            />
+            <Route
+              path="/Alerts"
+              element={
+                <Auth redirectPath="/login" isAllowed={!!token}>
+                  <Notification />
+                </Auth>
+              }
+            />
+            <Route
+              path="/"
+              element={
+                <Auth redirectPath="/login" isAllowed={!!token}>
+                  <HomePage />
+                </Auth>
+              }
+            />
+            <Route
+              path="/Profile"
+              element={
+                <Auth redirectPath="/login" isAllowed={!!token}>
+                  <Profile />
+                </Auth>
+              }
+            />
+            <Route
+              path="/Contact"
+              element={
+                <Auth redirectPath="/login" isAllowed={!!token}>
+                  <ContactUs />
+                </Auth>
+              }
+            />
+            <Route
+              path="/Location"
+              element={
+                <Auth redirectPath="/login" isAllowed={!!token}>
+                  <MapLocation />
+                </Auth>
+              }
+            />
+            <Route
+              path="/SignLanguage"
+              element={
+                <Auth redirectPath="/login" isAllowed={!!token}>
+                  <SignLanguage />
+                </Auth>
+              }
+            />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/verify" element={<OTPVerPage />} />

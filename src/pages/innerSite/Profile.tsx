@@ -6,52 +6,58 @@ import filler from "../../assets/filler.png";
 import dot from "../../assets/Ellipse 4.png";
 import { EyeOff } from "lucide-react";
 import SubmitButton from "@/components/SubmitButton";
-import { DUMMY_USER } from "../outerSite/dummyUser";
 import axios from "axios";
+
 const Profile: React.FC = () => {
   const [profileImage, setProfileImage] = React.useState<string | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   // Profile fields state
-  const [userProfile, setUserProfile] = useState("");
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
-  const [birthdate, setBirthdate] = useState("");
-  const [responsible, setResponsible] = useState("");
-  const [responsiblePhone, setResponsiblePhone] = useState("");
-  const [location, setLocation] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [address, setAddress] = useState("");
+  const [nameOfPersonInCharge, setNameOfPersonInCharge] = useState("");
+  const [numberPhoneOfPersonInCharge, setNumberPhoneOfPersonInCharge] =
+    useState("");
   const [success, setSuccess] = useState("");
-  // Password change state
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [passwordMsg, setPasswordMsg] = useState("");
+
+  // Location state
   const [locLoading, setLocLoading] = useState(false);
   const [locError, setLocError] = useState("");
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        if (localStorage.getItem("authToken")) {
-          const token = localStorage.getItem("authToken");
-
-          const response = await axios.get(
-            "https://dalail-project-daoud.vercel.app/api/v1/user/profile",
-            {
-              headers: {
-                token,
-              },
-            }
-          );
-          console.log("User profile response:", response.data);
-
-          // Dummy fallback if needed
-          setName(localStorage.getItem("userName") || DUMMY_USER.name);
-          setEmail(DUMMY_USER.email);
-          setBirthdate(DUMMY_USER.dateOfBirth);
-          setResponsible(DUMMY_USER.responsibleName);
-          setResponsiblePhone(DUMMY_USER.responsiblePhone);
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+          console.error("No auth token found");
+          return;
         }
+
+        const response = await axios.get(
+          "https://dalail-project-daoud.vercel.app/api/v1/user/profile",
+          {
+            headers: {
+              token,
+            },
+          }
+        );
+
+        const userData = response.data.data;
+        console.log("User profile data:", userData);
+
+        // Set the state with the API data
+        setFirstName(userData.firstName || "");
+        setLastName(userData.lastName || "");
+        setEmail(userData.email || "");
+        setPhoneNumber(userData.phoneNumber || "");
+        setAddress(userData.address || "");
+        setNameOfPersonInCharge(userData.nameOfPersonInCharge || "");
+        setNumberPhoneOfPersonInCharge(
+          userData.numberPhoneOfPersonInCharge || ""
+        );
       } catch (error) {
         console.error("Error fetching user profile:", error);
       }
@@ -75,42 +81,38 @@ const Profile: React.FC = () => {
     }
   };
 
-  const handlePasswordChange = (e: React.FormEvent) => {
+  const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    setPasswordMsg("");
-    // Get stored password or fallback to DUMMY_USER
-    const storedPassword =
-      localStorage.getItem("userPassword") || DUMMY_USER.password;
-    if (currentPassword !== storedPassword) {
-      setPasswordMsg("كلمة السر الحالية غير صحيحة");
-      return;
-    }
-    if (newPassword.length < 6) {
-      setPasswordMsg("كلمة السر الجديدة يجب أن تكون 6 أحرف على الأقل");
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      setPasswordMsg("كلمة السر الجديدة وتأكيد كلمة السر غير متطابقتين");
-      return;
-    }
-    // Save new password
-    localStorage.setItem("userPassword", newPassword);
-    setPasswordMsg("تم تغيير كلمة السر بنجاح!");
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
-  };
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        console.error("No auth token found");
+        return;
+      }
 
-  const handleProfileUpdate = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Update dummy user data in localStorage
-    localStorage.setItem("userName", name);
-    localStorage.setItem("userEmail", email);
-    localStorage.setItem("userBirthdate", birthdate);
-    localStorage.setItem("userResponsible", responsible);
-    localStorage.setItem("userResponsiblePhone", responsiblePhone);
-    localStorage.setItem("userLocation", location);
-    setSuccess("تم تحديث البيانات بنجاح!");
+      const response = await axios.put(
+        "https://dalail-project-daoud.vercel.app/api/v1/user/update",
+        {
+          firstName,
+          lastName,
+          phoneNumber,
+          address,
+          nameOfPersonInCharge,
+          numberPhoneOfPersonInCharge,
+        },
+        {
+          headers: {
+            token,
+          },
+        }
+      );
+
+      console.log("Update response:", response.data);
+      setSuccess("تم تحديث البيانات بنجاح!");
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      setSuccess("حدث خطأ أثناء تحديث البيانات");
+    }
   };
 
   const handleGetLocation = () => {
@@ -126,7 +128,7 @@ const Profile: React.FC = () => {
         const coords = `${pos.coords.latitude.toFixed(
           6
         )}, ${pos.coords.longitude.toFixed(6)}`;
-        setLocation(coords);
+        setAddress(coords);
         setLocLoading(false);
       },
       (err) => {
@@ -150,9 +152,7 @@ const Profile: React.FC = () => {
         }
       />
       <div className="container mx-auto px-4 py-12 p-8 text-right">
-        <div className="  lg:space-x-12 space-y-8 lg:space-y-0 rtl:space-x-reverse">
-          {/* Change Password Card */}
-
+        <div className="lg:space-x-12 space-y-8 lg:space-y-0 rtl:space-x-reverse">
           {/* Profile Info Card */}
           <div className="w-full">
             <form
@@ -167,12 +167,21 @@ const Profile: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input
                   type="text"
-                  name="name"
-                  placeholder="الاسم"
+                  name="firstName"
+                  placeholder="الاسم الأول"
                   className="w-full p-4 border border-gray-400 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 text-right placeholder-gray-500"
                   required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                />
+                <input
+                  type="text"
+                  name="lastName"
+                  placeholder="الاسم الأخير"
+                  className="w-full p-4 border border-gray-400 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 text-right placeholder-gray-500"
+                  required
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
                 />
                 <input
                   type="email"
@@ -182,23 +191,24 @@ const Profile: React.FC = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  disabled // Email might be read-only if it's used as username
                 />
                 <input
-                  type="date"
-                  name="birthdate"
-                  placeholder="تاريخ الميلاد"
+                  type="tel"
+                  name="phoneNumber"
+                  placeholder="رقم الهاتف"
                   className="w-full p-4 border border-gray-400 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 text-right placeholder-gray-500"
-                  value={birthdate}
-                  onChange={(e) => setBirthdate(e.target.value)}
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
                 />
                 <div className="relative flex items-center">
                   <input
                     type="text"
-                    name="location"
-                    placeholder="الموقع الحال"
+                    name="address"
+                    placeholder="العنوان"
                     className="w-full p-4 border border-gray-400 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 text-right placeholder-gray-500"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
                   />
                   <button
                     type="button"
@@ -217,19 +227,21 @@ const Profile: React.FC = () => {
                 )}
                 <input
                   type="text"
-                  name="responsible"
+                  name="nameOfPersonInCharge"
                   placeholder="اسم الشخص المسؤول"
                   className="w-full p-4 border border-gray-400 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 text-right placeholder-gray-500"
-                  value={responsible}
-                  onChange={(e) => setResponsible(e.target.value)}
+                  value={nameOfPersonInCharge}
+                  onChange={(e) => setNameOfPersonInCharge(e.target.value)}
                 />
                 <input
                   type="tel"
-                  name="responsiblePhone"
+                  name="numberPhoneOfPersonInCharge"
                   placeholder="رقم هاتف الشخص المسؤول"
                   className="w-full p-4 border border-gray-400 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 text-right placeholder-gray-500"
-                  value={responsiblePhone}
-                  onChange={(e) => setResponsiblePhone(e.target.value)}
+                  value={numberPhoneOfPersonInCharge}
+                  onChange={(e) =>
+                    setNumberPhoneOfPersonInCharge(e.target.value)
+                  }
                 />
               </div>
               <SubmitButton label="تحديث" />
