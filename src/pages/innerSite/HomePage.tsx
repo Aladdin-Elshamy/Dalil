@@ -460,9 +460,9 @@ const HomePage: React.FC = () => {
               alt="service icon"
               className="w-30 h-30 mb-4"
             />
-            <h4 className="font-bold text-lg mb-2">تحويل الصوت إلى نص</h4>
+            <h4 className="font-bold text-lg mb-2">تحويل النص إلى صوت</h4>
             <p className="text-gray-600 mb-4">
-              خدمة تحويل الكلام المنطوق إلى نص مكتوب، مما يساعد المستخدمين ذوي
+              خدمة تحويل النص المكتوب إلى كلام منطوق، مما يساعد المستخدمين ذوي
               الإعاقة السمعية أو النطقية على التواصل بشكل أفضل.
             </p>
             <SubmitButton label="عرض الخدمة" link="/TTS" />

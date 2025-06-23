@@ -102,7 +102,7 @@ export default function SignLanguage() {
                     </span>
                   </div>
                   <a
-                    href="#"
+                    href="https://waqfeya.net/books/%D9%82%D8%A7%D9%85%D9%88%D8%B3-%D9%84%D8%BA%D8%A9-%D8%A7%D9%84%D8%A5%D8%B4%D8%A7%D8%B1%D8%A9-%D9%84%D9%84%D8%A3%D8%B7%D9%81%D8%A7%D9%84-%D9%88%D9%84%D9%84%D9%85%D8%B1%D8%A7%D9%87%D9%82%D9%8A%D9%86-%D9%88%D8%A7%D9%84%D8%A8%D8%A7%D9%84%D8%BA%D9%8A%D9%86-%D8%A7%D9%84%D8%B5%D9%85-c677110ab44a4e009653e12c63e0c3e2#google_vignette"
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold mt-2 inline-block"
                   >
                     قراءة الكتاب
@@ -117,7 +117,7 @@ export default function SignLanguage() {
                     </span>
                   </div>
                   <a
-                    href="#"
+                    href="https://www.moualimi.com/2016/01/pdf_30.html"
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold mt-2 inline-block"
                   >
                     قراءة الكتاب
@@ -146,7 +146,7 @@ export default function SignLanguage() {
                     الحروف والأرقام وبعض العبارات الأساسية.
                   </div>
                   <a
-                    href="#"
+                    href="https://www.youtube.com/watch?v=AJeEBx3sbEc&list=PLbDJL_fJwCrD3WAqwdtO7qzkK3pyhTIJP"
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold mt-3 inline-flex items-center gap-2"
                   >
                     <svg
@@ -170,7 +170,7 @@ export default function SignLanguage() {
                     العامة.
                   </div>
                   <a
-                    href="#"
+                    href="https://www.youtube.com/watch?v=gcm0nMwX2e0"
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold mt-3 inline-flex items-center gap-2"
                   >
                     <svg
@@ -193,7 +193,7 @@ export default function SignLanguage() {
                     3- فيديو: شرح مفصل لقواعد لغة الإشارة وكيفية تكوين الجمل.
                   </div>
                   <a
-                    href="#"
+                    href="https://www.youtube.com/watch?v=FOjonEUXofE"
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold mt-3 inline-flex items-center gap-2"
                   >
                     <svg
@@ -235,7 +235,7 @@ export default function SignLanguage() {
                     الامتحان فرصة لتقييم مستواك قبل البدء في دورات.
                   </div>
                   <a
-                    href="#"
+                    href="https://mo3alem.net/course/Sign-Language-Level-Test"
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold mt-3 inline-flex items-center gap-2"
                   >
                     <svg
@@ -260,7 +260,7 @@ export default function SignLanguage() {
                     دوري، أو لمن يرغب في الحفاظ على المستوى المستمر للمهارات.
                   </div>
                   <a
-                    href="#"
+                    href="https://american-board.us/american-board-of-sign-language/"
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold mt-3 inline-flex items-center gap-2"
                   >
                     <svg
