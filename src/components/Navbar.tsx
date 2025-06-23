@@ -288,7 +288,7 @@ const Navbar: React.FC = () => {
                 </div>
               )}
             </div>
-            <NavLink
+            {/* <NavLink
               to="/Contact"
               className={({ isActive }) =>
                 isActive
@@ -297,7 +297,7 @@ const Navbar: React.FC = () => {
               }
             >
               تواصل معنا
-            </NavLink>
+            </NavLink> */}
           </div>
 
           {/* Desktop: Right Section - Icons and Login (on left in RTL) */}
@@ -499,7 +499,7 @@ const Navbar: React.FC = () => {
                   </div>
                 )}
               </div>
-              <NavLink
+              {/* <NavLink
                 to="/Contact"
                 className={({ isActive }) =>
                   isActive
@@ -509,7 +509,7 @@ const Navbar: React.FC = () => {
                 onClick={() => setMenuOpen(false)}
               >
                 تواصل معنا
-              </NavLink>
+              </NavLink> */}
               <button
                 onClick={() => {
                   if (isLoggedIn) {

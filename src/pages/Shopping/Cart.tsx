@@ -1,323 +1,62 @@
-// import React from 'react';
-// import Navbar from '../../components/Navbar';
-// import Footer from '../../components/Footer';
-// import wh1 from '../../assets/wheelchair1.png';
-// import wh2 from '../../assets/wheelchair2.png';
-// import wh3 from '../../assets/wheelchair3.png';
-// import { X, Plus, Minus } from 'lucide-react';
-// import { useCart } from './CartContext'; // Make sure this path is correct
-// import { useNavigate } from 'react-router-dom';
+import React from "react";
+import Navbar from "../../components/Navbar";
+import Footer from "../../components/Footer";
+import wh1 from "../../assets/wheelchair1.png";
+import wh2 from "../../assets/wheelchair2.png";
+import wh3 from "../../assets/wheelchair3.png";
+import { X, Plus, Minus } from "lucide-react";
+import { useCart } from "./CartContext"; // Make sure this path is correct
+import { useNavigate } from "react-router-dom";
 
-// // Placeholder cart items (to be replaced with real data from product details page)
-// // const initialCart = [
-// //   {
-// //     id: 1,
-// //     name: 'كرسي كهربائي متحرك',
-// //     price: 15000,
-// //     image: wh3,
-// //     quantity: 1,
-// //   },
-// //   {
-// //     id: 2,
-// //     name: 'إسكوتر كهربائي',
-// //     price: 10000,
-// //     image: wh1,
-// //     quantity: 2,
-// //   },
-// // ];
-
-// const Cart: React.FC = () => {
-//   const { cart, removeFromCart, updateQuantity } = useCart();
-//   const navigate = useNavigate();
-
-//   // Calculate totals
-//   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-//   const shipping = 'يحدد عند اختيار العنوان';
-//   const total = subtotal; // For now, shipping is not added
-
-//   const handleCompleteOrder = () => {
-//     navigate('/Complete', { state: { cart, subtotal, total } });
-//   };
-
-//   return (
-//     <div className="flex flex-col min-h-screen bg-white">
-//       <Navbar />
-//       <div className="container mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
-//         {/* Cart Summary */}
-//         <div className="md:w-1/3 w-full order-2 md:order-1 mb-8 md:mb-0">
-//           <div className="bg-white rounded-xl shadow p-6 border">
-//             <h2 className="text-xl font-bold text-right mb-4 border-b pb-2">إجمالي سلة المشتريات</h2>
-//             <div className="flex flex-col gap-2 text-right text-gray-700">
-//               <div className="flex justify-between mb-2">
-//                 <span>المجموع</span>
-//                 <span>ج.م{subtotal.toLocaleString()}</span> {/* Added toLocaleString for better number formatting */}
-//               </div>
-//               <div className="flex justify-between mb-2">
-//                 <span>الشحن</span>
-//                 <span>{shipping}</span>
-//               </div>
-//               <div className="flex justify-between font-bold text-lg border-t pt-2 mt-2">
-//                 <span>الإجمالي</span>
-//                 <span>ج.م{total.toLocaleString()}</span> {/* Added toLocaleString */}
-//               </div>
-//             </div>
-//             <button
-//               onClick={handleCompleteOrder}
-//               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg mt-6"
-//             >
-//               إتمام الطلب
-//             </button>
-//           </div>
-//         </div>
-
-//         {/* Cart Items */}
-//         <div className="md:w-2/3 w-full order-1 md:order-2">
-//           <div className="flex items-center gap-2 text-gray-500 text-base mb-4">
-//             <span className="text-blue-700 font-bold">عربة التسوق</span>
-//             <span className="mx-2">&lt;</span>
-//             <span>المنتجات</span>
-//           </div>
-
-//           {/* Hide table headers on mobile, show on md and up */}
-//           <div className="hidden md:block overflow-x-auto mb-4"> {/* Added mb-4 for spacing */}
-//             <table className="w-full text-right border-separate border-spacing-y-0"> {/* Adjusted border-spacing for desktop */}
-//               <thead>
-//                 <tr className="text-gray-600 text-base">
-//                   <th className="font-bold p-2 text-right">المنتج</th> {/* Added p-2 and text-right */}
-//                   <th className="font-bold p-2 text-right">السعر</th>
-//                   <th className="font-bold p-2 text-center">الكمية</th> {/* text-center for quantity */}
-//                   <th className="font-bold p-2 text-right">المجموع</th>
-//                   <th className="p-2"></th> {/* Empty header for delete button column */}
-//                 </tr>
-//               </thead>
-//             </table>
-//           </div>
-
-//           {/* Cart items container */}
-//           <div className="space-y-4">
-//             {cart.map((item) => (
-//               <div key={item.id} className="bg-white rounded-xl shadow border p-4 md:p-0 md:shadow-none md:border-none md:rounded-none">
-//                 {/* Mobile Layout (hidden on md and up) */}
-//                 <div className="md:hidden flex flex-row-reverse gap-4">
-//                   <div className="w-1/3 flex-shrink-0"> {/* Image container */}
-//                     <img src={item.image} alt={item.name} className="w-full h-auto object-contain rounded-lg border" />
-//                   </div>
-//                   <div className="w-2/3 flex flex-col justify-between text-right">
-//                     <div>
-//                       <h3 className="font-bold text-gray-700 mb-1">{item.name}</h3>
-//                       <p className="text-sm text-gray-500 mb-1">السعر: ج.م{item.price.toLocaleString()}</p>
-//                     </div>
-//                     <div className="flex items-center justify-end gap-2 my-2">
-//                       <button
-//                         className="bg-gray-100 rounded-full p-1 border border-gray-300 hover:bg-gray-200"
-//                         onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
-//                         aria-label="نقص الكمية"
-//                       >
-//                         <Minus size={16} />
-//                       </button>
-//                       <span className="font-bold text-base">{item.quantity}</span>
-//                       <button
-//                         className="bg-gray-100 rounded-full p-1 border border-gray-300 hover:bg-gray-200"
-//                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
-//                         aria-label="زيادة الكمية"
-//                       >
-//                         <Plus size={16} />
-//                       </button>
-//                     </div>
-//                     <p className="font-bold text-gray-800 mb-2">المجموع: ج.م{(item.price * item.quantity).toLocaleString()}</p>
-//                     <button
-//                       className="self-end text-red-500 hover:text-red-700 bg-gray-100 rounded-full p-1"
-//                       onClick={() => removeFromCart(item.id)}
-//                       aria-label="حذف المنتج"
-//                     >
-//                       <X size={18} />
-//                     </button>
-//                   </div>
-//                 </div>
-
-//                 {/* Desktop Table Row (hidden on screens smaller than md) */}
-//                 {/* This structure attempts to mimic a table row for md screens and up */}
-//                 <div className="hidden md:flex items-center bg-white rounded-xl shadow md:border md:border-gray-200 p-2"> {/* md:border for clarity */}
-//                   <div className="w-2/5 flex items-center gap-4 py-2 px-2"> {/* Product name and image */}
-//                     <img src={item.image} alt={item.name} className="w-20 h-20 object-contain rounded-lg border" />
-//                     <span className="font-bold text-gray-700">{item.name}</span>
-//                   </div>
-//                   <div className="w-1/5 py-2 px-2 text-right">ج.م{item.price.toLocaleString()}</div> {/* Price */}
-//                   <div className="w-1/5 py-2 px-2"> {/* Quantity */}
-//                     <div className="flex items-center gap-2 justify-center">
-//                       <button
-//                         className="bg-gray-100 rounded-full p-1 border border-gray-300 hover:bg-gray-200"
-//                         onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
-//                         aria-label="نقص الكمية"
-//                       >
-//                         <Minus size={18} />
-//                       </button>
-//                       <span className="mx-2 font-bold text-lg">{item.quantity}</span>
-//                       <button
-//                         className="bg-gray-100 rounded-full p-1 border border-gray-300 hover:bg-gray-200"
-//                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
-//                         aria-label="زيادة الكمية"
-//                       >
-//                         <Plus size={18} />
-//                       </button>
-//                     </div>
-//                   </div>
-//                   <div className="w-1/5 py-2 px-2 font-bold text-right">ج.م{(item.price * item.quantity).toLocaleString()}</div> {/* Subtotal */}
-//                   <div className="w-auto py-2 px-2 flex justify-end"> {/* Delete button */}
-//                     <button
-//                       className="text-red-500 hover:text-red-700 bg-gray-100 rounded-full p-1"
-//                       onClick={() => removeFromCart(item.id)}
-//                       aria-label="حذف المنتج"
-//                     >
-//                       <X size={20} />
-//                     </button>
-//                   </div>
-//                 </div>
-//               </div>
-//             ))}
-//             {cart.length === 0 && (
-//               <div className="text-center text-gray-400 py-8 font-bold md:col-span-5"> {/* md:col-span-5 for table case */}
-//                 سلة التسوق فارغة
-//               </div>
-//             )}
-//           </div>
-//         </div>
-//       </div>
-//       <Footer />
-//     </div>
-//   );
-// };
-
-// export default Cart;
-// import React from 'react';
-// import { useCart } from './CartContext';
-// import { Link } from 'react-router-dom';
-// import Navbar from '../../components/Navbar';
-
-// const Cart: React.FC = () => {
-//   const { cart, removeFromCart, clearCart } = useCart();
-
-//   const totalPrice = cart.reduce(
-//     (sum, item) => sum + item.product.priceAfterDiscount * item.quantity,
-//     0
-//   );
-
-//   if (cart.length === 0) {
-//     return (
-//       <>
-//         <Navbar />
-//         <div className="container text-center mt-5">
-//           <h3>السلة فارغة 🛒</h3>
-//           <Link to="/" className="btn btn-primary mt-3">
-//             تصفح المنتجات
-//           </Link>
-//         </div>
-//       </>
-//     );
-//   }
-
-//   return (
-//     <>
-//       <Navbar />
-//       <div className="container mt-5">
-//         <h2 className="mb-4">سلة المشتريات</h2>
-//         <table className="table table-bordered text-center">
-//           <thead className="table-light">
-//             <tr>
-//               <th>الصورة</th>
-//               <th>الاسم</th>
-//               <th>السعر</th>
-//               <th>الكمية</th>
-//               <th>الإجمالي</th>
-//               <th>إزالة</th>
-//             </tr>
-//           </thead>
-//           <tbody>
-//             {cart.map((item, index) => (
-//               <tr key={index}>
-//                 <td>
-//                   <img
-//                     src={item.product.images[0]?.secure_url}
-//                     alt={item.product.title}
-//                     style={{ width: '60px', height: '60px', objectFit: 'cover' }}
-//                   />
-//                 </td>
-//                 <td>{item.product.title}</td>
-//                 <td>{item.product.priceAfterDiscount} ج.م</td>
-//                 <td>{item.quantity}</td>
-//                 <td>{item.product.priceAfterDiscount * item.quantity} ج.م</td>
-//                 <td>
-//                   <button
-//                     className="btn btn-sm btn-danger"
-//                     onClick={() => removeFromCart(item.product._id)}
-//                   >
-//                     حذف
-//                   </button>
-//                 </td>
-//               </tr>
-//             ))}
-//           </tbody>
-//         </table>
-
-//         <div className="text-end">
-//           <h4>الإجمالي الكلي: {totalPrice} ج.م</h4>
-//           <button className="btn btn-outline-danger me-2" onClick={clearCart}>
-//             تفريغ السلة
-//           </button>
-//           <Link to="/order" className="btn btn-success">
-//             إتمام الطلب
-//           </Link>
-//         </div>
-//       </div>
-//     </>
-//   );
-// };
-
-// export default Cart; 
-import React from 'react';
-import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
-import { X, Plus, Minus } from 'lucide-react';
-import { useCart } from './CartContext';
-import { useNavigate } from 'react-router-dom';
+// Placeholder cart items (to be replaced with real data from product details page)
+// const initialCart = [
+//   {
+//     id: 1,
+//     name: 'كرسي كهربائي متحرك',
+//     price: 15000,
+//     image: wh3,
+//     quantity: 1,
+//   },
+//   {
+//     id: 2,
+//     name: 'إسكوتر كهربائي',
+//     price: 10000,
+//     image: wh1,
+//     quantity: 2,
+//   },
+// ];
 
 const Cart: React.FC = () => {
-  const { cart, removeFromCart, clearCart } = useCart();
+  const { cart, removeFromCart, updateQuantity } = useCart();
   const navigate = useNavigate();
 
   // Calculate totals
-  const subtotal = cart.reduce((sum, item) => sum + item.product.priceAfterDiscount * item.quantity, 0);
-  const shipping = 'يحدد عند اختيار العنوان';
+  const subtotal = cart.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+  const shipping = "يحدد عند اختيار العنوان";
   const total = subtotal; // For now, shipping is not added
 
   const handleCompleteOrder = () => {
-    navigate('/Complete', { state: { cart, subtotal, total } });
-  };
-
-  // Function to update quantity (we'll need to add this to context)
-  const updateQuantity = (id: string, newQuantity: number) => {
-    // For now, we'll remove and re-add with new quantity
-    // This is a temporary solution - ideally we'd have updateQuantity in context
-    const item = cart.find(cartItem => cartItem._id === id);
-    if (item && newQuantity > 0) {
-      // This is a workaround - in a real app, you'd implement proper updateQuantity
-      console.log('Update quantity for item:', id, 'to:', newQuantity);
-      // You can implement this by modifying the CartContext to include updateQuantity
-    }
+    navigate("/Complete", { state: { cart, subtotal, total } });
   };
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
       <Navbar />
-      <div className="container mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
+      <div className="container flex-1 mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
         {/* Cart Summary */}
         <div className="md:w-1/3 w-full order-2 md:order-1 mb-8 md:mb-0">
           <div className="bg-white rounded-xl shadow p-6 border">
-            <h2 className="text-xl font-bold text-right mb-4 border-b pb-2">إجمالي سلة المشتريات</h2>
+            <h2 className="text-xl font-bold text-right mb-4 border-b pb-2">
+              إجمالي سلة المشتريات
+            </h2>
             <div className="flex flex-col gap-2 text-right text-gray-700">
               <div className="flex justify-between mb-2">
                 <span>المجموع</span>
-                <span>ج.م{subtotal.toLocaleString()}</span>
+                <span>ج.م{subtotal.toLocaleString()}</span>{" "}
+                {/* Added toLocaleString for better number formatting */}
               </div>
               <div className="flex justify-between mb-2">
                 <span>الشحن</span>
@@ -325,7 +64,8 @@ const Cart: React.FC = () => {
               </div>
               <div className="flex justify-between font-bold text-lg border-t pt-2 mt-2">
                 <span>الإجمالي</span>
-                <span>ج.م{total.toLocaleString()}</span>
+                <span>ج.م{total.toLocaleString()}</span>{" "}
+                {/* Added toLocaleString */}
               </div>
             </div>
             <button
@@ -333,12 +73,6 @@ const Cart: React.FC = () => {
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg mt-6"
             >
               إتمام الطلب
-            </button>
-            <button
-              onClick={clearCart}
-              className="w-full bg-red-100 hover:bg-red-200 text-red-600 font-bold py-2 rounded-lg mt-2"
-            >
-              تفريغ السلة
             </button>
           </div>
         </div>
@@ -353,14 +87,21 @@ const Cart: React.FC = () => {
 
           {/* Hide table headers on mobile, show on md and up */}
           <div className="hidden md:block overflow-x-auto mb-4">
+            {" "}
+            {/* Added mb-4 for spacing */}
             <table className="w-full text-right border-separate border-spacing-y-0">
+              {" "}
+              {/* Adjusted border-spacing for desktop */}
               <thead>
                 <tr className="text-gray-600 text-base">
-                  <th className="font-bold p-2 text-right">المنتج</th>
+                  <th className="font-bold p-2 text-right">المنتج</th>{" "}
+                  {/* Added p-2 and text-right */}
                   <th className="font-bold p-2 text-right">السعر</th>
-                  <th className="font-bold p-2 text-center">الكمية</th>
+                  <th className="font-bold p-2 text-center">الكمية</th>{" "}
+                  {/* text-center for quantity */}
                   <th className="font-bold p-2 text-right">المجموع</th>
-                  <th className="p-2"></th>
+                  <th className="p-2"></th>{" "}
+                  {/* Empty header for delete button column */}
                 </tr>
               </thead>
             </table>
@@ -369,42 +110,63 @@ const Cart: React.FC = () => {
           {/* Cart items container */}
           <div className="space-y-4">
             {cart.map((item) => (
-              <div key={item._id} className="bg-white rounded-xl shadow border p-4 md:p-0 md:shadow-none md:border-none md:rounded-none">
+              <div
+                key={item.id}
+                className="bg-white rounded-xl shadow border p-4 md:p-0 md:shadow-none md:border-none md:rounded-none"
+              >
                 {/* Mobile Layout (hidden on md and up) */}
                 <div className="md:hidden flex flex-row-reverse gap-4">
                   <div className="w-1/3 flex-shrink-0">
-                    <img 
-                      src={item.product.images[0]?.secure_url || '/placeholder-image.jpg'} 
-                      alt={item.product.title} 
-                      className="w-full h-auto object-contain rounded-lg border" 
+                    {" "}
+                    {/* Image container */}
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-full h-auto object-contain rounded-lg border"
                     />
                   </div>
                   <div className="w-2/3 flex flex-col justify-between text-right">
                     <div>
-                      <h3 className="font-bold text-gray-700 mb-1">{item.product.title}</h3>
-                      <p className="text-sm text-gray-500 mb-1">السعر: ج.م{item.product.priceAfterDiscount.toLocaleString()}</p>
+                      <h3 className="font-bold text-gray-700 mb-1">
+                        {item.name}
+                      </h3>
+                      <p className="text-sm text-gray-500 mb-1">
+                        السعر: ج.م{item.price.toLocaleString()}
+                      </p>
                     </div>
                     <div className="flex items-center justify-end gap-2 my-2">
                       <button
                         className="bg-gray-100 rounded-full p-1 border border-gray-300 hover:bg-gray-200"
-                        onClick={() => updateQuantity(item._id, Math.max(1, item.quantity - 1))}
+                        onClick={() =>
+                          updateQuantity(
+                            item.id,
+                            Math.max(1, item.quantity - 1)
+                          )
+                        }
                         aria-label="نقص الكمية"
                       >
                         <Minus size={16} />
                       </button>
-                      <span className="font-bold text-base">{item.quantity}</span>
+                      <span className="font-bold text-base">
+                        {item.quantity}
+                      </span>
                       <button
                         className="bg-gray-100 rounded-full p-1 border border-gray-300 hover:bg-gray-200"
-                        onClick={() => updateQuantity(item._id, item.quantity + 1)}
+                        onClick={() =>
+                          updateQuantity(item.id, item.quantity + 1)
+                        }
                         aria-label="زيادة الكمية"
                       >
                         <Plus size={16} />
                       </button>
                     </div>
-                    <p className="font-bold text-gray-800 mb-2">المجموع: ج.م{(item.product.priceAfterDiscount * item.quantity).toLocaleString()}</p>
+                    <p className="font-bold text-gray-800 mb-2">
+                      المجموع: ج.م
+                      {(item.price * item.quantity).toLocaleString()}
+                    </p>
                     <button
                       className="self-end text-red-500 hover:text-red-700 bg-gray-100 rounded-full p-1"
-                      onClick={() => removeFromCart(item._id)}
+                      onClick={() => removeFromCart(item.id)}
                       aria-label="حذف المنتج"
                     >
                       <X size={18} />
@@ -413,40 +175,64 @@ const Cart: React.FC = () => {
                 </div>
 
                 {/* Desktop Table Row (hidden on screens smaller than md) */}
+                {/* This structure attempts to mimic a table row for md screens and up */}
                 <div className="hidden md:flex items-center bg-white rounded-xl shadow md:border md:border-gray-200 p-2">
+                  {" "}
+                  {/* md:border for clarity */}
                   <div className="w-2/5 flex items-center gap-4 py-2 px-2">
-                    <img 
-                      src={item.product.images[0]?.secure_url || '/placeholder-image.jpg'} 
-                      alt={item.product.title} 
-                      className="w-20 h-20 object-contain rounded-lg border" 
+                    {" "}
+                    {/* Product name and image */}
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-20 h-20 object-contain rounded-lg border"
                     />
-                    <span className="font-bold text-gray-700">{item.product.title}</span>
+                    <span className="font-bold text-gray-700">{item.name}</span>
                   </div>
-                  <div className="w-1/5 py-2 px-2 text-right">ج.م{item.product.priceAfterDiscount.toLocaleString()}</div>
+                  <div className="w-1/5 py-2 px-2 text-right">
+                    ج.م{item.price.toLocaleString()}
+                  </div>{" "}
+                  {/* Price */}
                   <div className="w-1/5 py-2 px-2">
+                    {" "}
+                    {/* Quantity */}
                     <div className="flex items-center gap-2 justify-center">
                       <button
                         className="bg-gray-100 rounded-full p-1 border border-gray-300 hover:bg-gray-200"
-                        onClick={() => updateQuantity(item._id, Math.max(1, item.quantity - 1))}
+                        onClick={() =>
+                          updateQuantity(
+                            item.id,
+                            Math.max(1, item.quantity - 1)
+                          )
+                        }
                         aria-label="نقص الكمية"
                       >
                         <Minus size={18} />
                       </button>
-                      <span className="mx-2 font-bold text-lg">{item.quantity}</span>
+                      <span className="mx-2 font-bold text-lg">
+                        {item.quantity}
+                      </span>
                       <button
                         className="bg-gray-100 rounded-full p-1 border border-gray-300 hover:bg-gray-200"
-                        onClick={() => updateQuantity(item._id, item.quantity + 1)}
+                        onClick={() =>
+                          updateQuantity(item.id, item.quantity + 1)
+                        }
                         aria-label="زيادة الكمية"
                       >
                         <Plus size={18} />
                       </button>
                     </div>
                   </div>
-                  <div className="w-1/5 py-2 px-2 font-bold text-right">ج.م{(item.product.priceAfterDiscount * item.quantity).toLocaleString()}</div>
+                  <div className="w-1/5 py-2 px-2 font-bold text-right">
+                    ج.م{(item.price * item.quantity).toLocaleString()}
+                  </div>{" "}
+                  {/* Subtotal */}
                   <div className="w-auto py-2 px-2 flex justify-end">
+                    {" "}
+                    {/* Delete button */}
                     <button
                       className="text-red-500 hover:text-red-700 bg-gray-100 rounded-full p-1"
-                      onClick={() => removeFromCart(item._id)}
+                      onClick={() => removeFromCart(item.id)}
                       aria-label="حذف المنتج"
                     >
                       <X size={20} />
@@ -457,6 +243,8 @@ const Cart: React.FC = () => {
             ))}
             {cart.length === 0 && (
               <div className="text-center text-gray-400 py-8 font-bold md:col-span-5">
+                {" "}
+                {/* md:col-span-5 for table case */}
                 سلة التسوق فارغة
               </div>
             )}
